@@ -23,8 +23,8 @@ if [ ! -d "dist" ] || [ ! -d "dist-electron" ]; then
   npm run build
 fi
 
-# Establecer entorno de producción y ejecutar filtrando avisos cosméticos del sistema (GTK / libva)
+# Establecer entorno de producción y ejecutar filtrando avisos cosméticos del sistema (GTK / libva / GLib)
 export NODE_ENV=production
 export LIBVA_DRIVER_NAME=none
-exec npx electron . "$@" 2> >(grep -v -E "Gtk-WARNING|Theme parsing error|libva error|iHD_drv_video" >&2)
+exec npx electron . "$@" 2> >(grep -v -E "Gtk-WARNING|Theme parsing error|libva error|iHD_drv_video|GLib-GObject|browser_main_loop.cc" >&2)
 

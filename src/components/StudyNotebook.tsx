@@ -199,14 +199,36 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   const [copied, setCopied] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
   const [isAddingTag, setIsAddingTag] = useState(false);
+  const [localTitle, setLocalTitle] = useState('');
 
   const editorRef = useRef<HTMLDivElement>(null);
-  const isUpdatingFromSelf = useRef(false);
+  const saveTimeoutRef = useRef<any>(null);
+  const currentNoteIdRef = useRef<string | null>(null);
 
   // Active Note
   const activeNote = useMemo(() => {
     return notes.find((n) => n.id === activeNoteId) || null;
   }, [notes, activeNoteId]);
+
+  // Sincronizar título local y HTML cuando cambia la nota seleccionada
+  useEffect(() => {
+    if (activeNote) {
+      setLocalTitle(activeNote.title || '');
+      // Solo recargar innerHTML si cambiamos de nota (evita reiniciar el cursor mientras se escribe)
+      if (currentNoteIdRef.current !== activeNote.id) {
+        currentNoteIdRef.current = activeNote.id;
+        if (editorRef.current) {
+          editorRef.current.innerHTML = markdownToHtml(activeNote.content || '');
+        }
+      }
+    } else {
+      currentNoteIdRef.current = null;
+      setLocalTitle('');
+      if (editorRef.current) {
+        editorRef.current.innerHTML = '';
+      }
+    }
+  }, [activeNote?.id]);
 
   // All unique tags across notes
   const allTags = useMemo(() => {
@@ -237,29 +259,49 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     }
   }, [isOpen, activeNoteId, notes, onSelectNote]);
 
-  // Sincronizar el contenido del editor visual cuando cambia la nota activa
-  useEffect(() => {
-    if (editorRef.current && activeNote) {
-      if (!isUpdatingFromSelf.current) {
-        const richHtml = markdownToHtml(activeNote.content || '');
-        editorRef.current.innerHTML = richHtml;
-      }
-      isUpdatingFromSelf.current = false;
-    }
-  }, [activeNote?.id]);
+  // Guardar cambios con debounce para que el teclado responda a 60fps sin re-renderizar la app entera
+  const persistChanges = useCallback(
+    (newContent?: string, newTitle?: string) => {
+      if (!activeNote) return;
+      const contentToSave = newContent !== undefined ? newContent : (editorRef.current ? editorRef.current.innerHTML : activeNote.content);
+      const titleToSave = newTitle !== undefined ? newTitle : (localTitle || activeNote.title);
 
-  if (!isOpen) return null;
+      onUpdateNote({
+        ...activeNote,
+        title: titleToSave,
+        content: contentToSave,
+        updatedAt: new Date().toISOString(),
+      });
+    },
+    [activeNote, localTitle, onUpdateNote]
+  );
 
-  // Manejador de entrada de texto directo en el editor visual
+  // Manejador de entrada de texto directo en el editor visual con debounce suave
   const handleEditorInput = () => {
     if (!editorRef.current || !activeNote) return;
-    isUpdatingFromSelf.current = true;
     const html = editorRef.current.innerHTML;
-    onUpdateNote({
-      ...activeNote,
-      content: html,
-      updatedAt: new Date().toISOString(),
-    });
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      persistChanges(html);
+    }, 600);
+  };
+
+  // Al salir del editor (blur), persistir de inmediato
+  const handleEditorBlur = () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    if (editorRef.current && activeNote) {
+      persistChanges(editorRef.current.innerHTML);
+    }
+  };
+
+  // Actualizar título con debounce
+  const handleTitleChange = (val: string) => {
+    setLocalTitle(val);
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      persistChanges(undefined, val);
+    }, 600);
   };
 
   // Comandos de formateo visual nativo
@@ -335,7 +377,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
     // Tarjeta visual editorial del pasaje (sin símbolos de código ni markdown)
     const visualScriptureHtml = `
-      <div class="verse-box" contenteditable="false">
+      <div class="verse-box">
         <div class="verse-text">“${snippet}”</div>
         <div class="verse-ref">📖 ${refText} — Reina-Valera 1960</div>
       </div>
@@ -475,7 +517,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
   return (
     <aside
-      className={`border-l border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex flex-col z-20 transition-all duration-300 shadow-xl select-none ${
+      className={`border-l border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex flex-col z-20 transition-all duration-300 shadow-xl ${
         isMaximized
           ? 'fixed inset-0 z-50 w-full h-full'
           : 'w-full lg:w-[500px] xl:w-[580px] h-[calc(100vh-3.5rem)] flex-shrink-0'
@@ -630,14 +672,9 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
               <div className="flex items-center justify-between gap-3">
                 <input
                   type="text"
-                  value={activeNote.title}
-                  onChange={(e) =>
-                    onUpdateNote({
-                      ...activeNote,
-                      title: e.target.value,
-                      updatedAt: new Date().toISOString(),
-                    })
-                  }
+                  value={localTitle}
+                  onChange={(e) => handleTitleChange(e.target.value)}
+                  onBlur={() => persistChanges(undefined, localTitle)}
                   placeholder="Título del sermón o estudio..."
                   className="flex-1 bg-transparent font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-b border-transparent focus:border-amber-500 pb-0.5 transition-colors"
                 />
@@ -912,14 +949,20 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
             )}
 
             {/* Lienzo del Editor Visual (WYSIWYG) */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 print:p-0">
+            <div
+              className="flex-1 overflow-y-auto p-4 sm:p-6 print:p-0 cursor-text"
+              onClick={() => editorRef.current?.focus()}
+            >
               {viewMode === 'edit' ? (
                 <div
                   ref={editorRef}
                   contentEditable
+                  suppressContentEditableWarning
+                  tabIndex={0}
                   onInput={handleEditorInput}
-                  data-placeholder="Comienza a escribir tu sermón, puntos de estudio o reflexiones aquí. Usa las herramientas superiores para títulos y versículos sin preocuparte por códigos..."
-                  className="study-editor w-full h-full text-stone-900 dark:text-stone-100 select-text"
+                  onBlur={handleEditorBlur}
+                  data-placeholder="Comienza a escribir tu sermón, puntos de estudio o reflexiones aquí. Usa las herramientas superiores para títulos y versículos sin códigos..."
+                  className="study-editor w-full min-h-[400px] text-stone-900 dark:text-stone-100 focus:outline-none select-text"
                   spellCheck="true"
                 />
               ) : (
