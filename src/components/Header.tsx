@@ -58,8 +58,11 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Brand & Chapter Selector */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold tracking-wide">
-          <BookOpen className="w-5 h-5" />
-          <span className="hidden sm:inline text-sm font-bold tracking-tight">RVR 1960</span>
+          <BookOpen className="w-5 h-5 flex-shrink-0" />
+          <div className="flex flex-col -space-y-0.5">
+            <span className="hidden sm:inline text-xs font-bold tracking-tight">RVR 1960</span>
+            <span className="hidden md:inline text-[9px] font-bold text-amber-700/80 dark:text-amber-500/80 tracking-wider uppercase">SoyJhery</span>
+          </div>
         </div>
 
         <div className="h-4 w-[1px] bg-stone-300 dark:bg-stone-700 hidden sm:block" />

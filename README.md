@@ -1,6 +1,6 @@
-# 📖 Biblia RVR 1960 Desktop
+# 📖 Biblia RVR 1960 Desktop — Una app de SoyJhery
 
-Aplicación moderna de estudio bíblico multiplataforma para Windows y Linux, basada en el texto canónico de la **Reina-Valera 1960**. Diseñada para ofrecer una experiencia de lectura fluida con modo oscuro profundo, soporte de resaltados de color, marcadores, favoritos y un potente sistema de agrupación temática de versículos y capítulos.
+Aplicación moderna de estudio bíblico multiplataforma para Windows y Linux, desarrollada y firmada por **SoyJhery**. Basada en el texto canónico de la **Reina-Valera 1960**...
 
 ---
 
@@ -97,7 +97,10 @@ biblia-desktop/
 
 ---
 
-## 5. 🏷️ Versión y Licencia
+## 5. 🏷️ Autoría, Contacto y Copyright
+- **Creado por:** SoyJhery
+- **Correo Oficial de Soporte y Colaboración:** [soyjhery@gmail.com](mailto:soyjhery@gmail.com)
 - **Versión:** `0.1.0` (SemVer)
 - **Texto Bíblico:** Reina-Valera 1960 (RVR1960)
-- **Licencia:** MIT
+- **Derechos de Autor:** Copyright © 2026 SoyJhery. Todos los derechos reservados.
+

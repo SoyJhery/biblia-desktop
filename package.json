@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Aplicación de estudio bíblico multiplataforma (Windows y Linux) con Reina-Valera 1960, modo oscuro, favoritos, marcadores y colecciones temáticas.",
-  "author": "jhery",
+  "author": "SoyJhery <soyjhery@gmail.com>",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev:vite": "vite --host 127.0.0.1 --port 5173",
@@ -40,9 +40,9 @@
     "wait-on": "^8.0.0"
   },
   "build": {
-    "appId": "com.biblia.desktop",
-    "productName": "Biblia RVR 1960",
-    "copyright": "Copyright © 2026",
+    "appId": "com.soyjhery.biblia",
+    "productName": "Biblia RVR 1960 - SoyJhery",
+    "copyright": "Copyright © 2026 SoyJhery. Todos los derechos reservados.",
     "directories": {
       "output": "release"
     },
@@ -63,7 +63,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Biblia RVR 1960"
+      "shortcutName": "Biblia RVR 1960 - SoyJhery"
     },
     "linux": {
       "target": [

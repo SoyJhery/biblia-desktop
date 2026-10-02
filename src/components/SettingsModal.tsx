@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   X, 
   Sliders, 
@@ -9,7 +9,11 @@ import {
   Upload, 
   Type, 
   RotateCcw,
-  CheckCircle2
+  CheckCircle2,
+  Mail,
+  Heart,
+  Copy,
+  Check
 } from 'lucide-react';
 import { ThemeMode, ReaderFont, UserSettings } from '../types';
 
@@ -32,6 +36,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportBackup,
   onResetData,
 }) => {
+  const [copiedEmail, setCopiedEmail] = useState(false);
+
+  const handleCopyEmail = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText('soyjhery@gmail.com');
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  };
   if (!isOpen) return null;
 
   return (
@@ -201,11 +213,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
-          {/* About */}
-          <div className="p-3 rounded-xl bg-stone-100 dark:bg-stone-800/50 text-[11px] text-stone-500 dark:text-stone-400 flex flex-col gap-1 text-center">
-            <p className="font-semibold text-stone-700 dark:text-stone-300">Biblia RVR 1960 Desktop • v0.1.0</p>
-            <p>Traducción Reina-Valera 1960. 66 Libros • 1,189 Capítulos • 31,104 Versículos.</p>
-            <p>100% Offline • Multiplataforma para Windows (.exe) y Linux.</p>
+          {/* About & Copyright SoyJhery */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-stone-100/60 to-stone-50 dark:from-amber-500/10 dark:via-stone-850 dark:to-stone-900 border border-amber-500/20 text-center flex flex-col items-center gap-2.5">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-[11px] tracking-wide uppercase">
+                Una app de SoyJhery
+              </span>
+              <span className="text-[11px] text-stone-400 font-medium">v0.1.0</span>
+            </div>
+
+            <p className="font-serif text-sm font-bold text-stone-800 dark:text-stone-100">
+              Biblia RVR 1960 Desktop
+            </p>
+
+            <p className="text-xs text-stone-600 dark:text-stone-400 max-w-sm leading-relaxed">
+              Traducción Reina-Valera 1960 • 66 Libros • 1,189 Capítulos • 31,104 Versículos • 100% Offline.
+            </p>
+
+            <div className="w-full h-[1px] bg-stone-200 dark:bg-stone-800 my-0.5" />
+
+            <div className="flex flex-col items-center gap-1.5 text-xs w-full">
+              <span className="text-stone-500 dark:text-stone-400 text-[11px]">
+                ¿Quieres apoyar este proyecto, sugerir nuevas funciones o colaborar?
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href="mailto:soyjhery@gmail.com"
+                  className="inline-flex items-center gap-1.5 font-semibold text-amber-600 dark:text-amber-400 hover:underline px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 transition-colors"
+                  title="Escríbenos directamente a nuestro correo"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>soyjhery@gmail.com</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyEmail}
+                  className="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+                  title="Copiar correo al portapapeles"
+                >
+                  {copiedEmail ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 font-medium">
+              Copyright © 2026 SoyJhery. Todos los derechos reservados.
+            </p>
           </div>
         </div>
       </div>

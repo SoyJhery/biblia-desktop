@@ -26,7 +26,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     backgroundColor: '#0c0a09', // stone-950 dark background for seamless launch
-    title: 'Biblia RVR 1960',
+    title: 'Biblia RVR 1960 — Una app de SoyJhery',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,

@@ -38,7 +38,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Compilación y empaquetado multiplataforma:**
   - Generación de instalador para Windows (`.exe` NSIS y versión portable).
   - Compatible y ejecutable nativamente en sistemas Linux.
+- **Identidad, autoría y soporte oficial de SoyJhery:**
+  - Inclusión de copyright oficial `Copyright © 2026 SoyJhery. Todos los derechos reservados.`
+  - Insignia de creador en barra superior (`SoyJhery`), metadatos de aplicación y ventana.
+  - Sección interactiva en ajustes con correo oficial de contacto y apoyo (`soyjhery@gmail.com`) con botón de copiado rápido al portapapeles.
 
 ### Fixed
 - Corrección en resolución de entorno en `run.sh` fijando `NODE_ENV=production` y mecanismo de respaldo a `dist/index.html` en el proceso principal de Electron ante ausencia de servidor de desarrollo.
+- Corrección de paleta de colores para tarjetas de libros en modo oscuro agregando tonalidades `stone-850` y `stone-750` en Tailwind CSS.
+- Supresión de avisos cosméticos del subsistema VA-API (`libva error`) en terminal.
 
