@@ -64,10 +64,10 @@ function processInline(text: string): string {
  */
 export function cleanHtmlContent(content: string, noteTitle?: string): string {
   if (!content) return '<p><br></p>';
-  let cleaned = content;
+  let cleaned = content.trim();
 
   // 1. Extraer <div class="verse-box">...</div> si accidentalmente quedó atrapada dentro de un <h1-h6>
-  cleaned = cleaned.replace(/<h([1-6])>([\s\S]*?)<div class="verse-box"([\s\S]*?)<\/div>([\s\S]*?)<\/h\1>/gi, (_m, hLevel, before, boxContent, after) => {
+  cleaned = cleaned.replace(/<h([1-6])[^>]*>([\s\S]*?)<div class="verse-box"([\s\S]*?)<\/div>([\s\S]*?)<\/h\1>/gi, (_m, hLevel, before, boxContent, after) => {
     const parts: string[] = [];
     const cleanBefore = before.replace(/<[^>]+>/g, '').trim();
     const cleanAfter = after.replace(/<[^>]+>/g, '').trim();
@@ -82,17 +82,19 @@ export function cleanHtmlContent(content: string, noteTitle?: string): string {
     return parts.join('\n');
   });
 
-  // 2. Si el contenido tiene <h1> o <h2> con exactamente el título de la nota al inicio, removerlo
-  if (noteTitle && noteTitle.trim()) {
-    const escaped = noteTitle.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const titleRegex = new RegExp(`^\\s*<h[1-2]>\\s*${escaped}\\s*<\\/h[1-2]>\\s*(<p><br\\/?><\\/p>)?`, 'i');
-    cleaned = cleaned.replace(titleRegex, '');
-    const mdTitleRegex = new RegExp(`^\\s*#{1,2}\\s*${escaped}\\s*(\n|$)`, 'i');
-    cleaned = cleaned.replace(mdTitleRegex, '');
-  }
+  // 2. Limpiar párrafos vacíos y saltos al inicio
+  cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/gi, '');
 
-  // 3. Limpiar párrafos vacíos redundantes al inicio
-  cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/, '');
+  // 3. Si el primer elemento es un encabezado que contiene o equivale al título, o el título por defecto, removerlo
+  const escaped = (noteTitle || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = escaped ? `(${escaped}|Nuevo Bosquejo( de Estudio)?)` : `Nuevo Bosquejo( de Estudio)?`;
+  const titleRegex = new RegExp(`^\\s*<h[1-2][^>]*>\\s*${pattern}\\s*<\\/h[1-2]>\\s*(<p><br\\/?><\\/p>)?`, 'i');
+  cleaned = cleaned.replace(titleRegex, '');
+  const mdTitleRegex = new RegExp(`^\\s*#{1,2}\\s*${pattern}\\s*(\n|$)`, 'i');
+  cleaned = cleaned.replace(mdTitleRegex, '');
+
+  // 4. Limpiar de nuevo párrafos vacíos al inicio tras remover el título
+  cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/gi, '');
 
   return cleaned.trim() || '<p><br></p>';
 }
@@ -804,14 +806,26 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
             {/* Cabecera del Documento: Título y Modos de Vista */}
             <div className="p-3 border-b border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 bg-stone-50/60 dark:bg-stone-850/60">
               <div className="flex items-center justify-between gap-3">
-                <input
-                  type="text"
-                  value={localTitle}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  onBlur={() => persistChanges(undefined, localTitle)}
-                  placeholder="Título del sermón o estudio..."
-                  className="flex-1 bg-transparent font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-b border-transparent focus:border-amber-500 pb-0.5 transition-colors"
-                />
+                {viewMode === 'edit' ? (
+                  <input
+                    type="text"
+                    value={localTitle}
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    onBlur={() => persistChanges(undefined, localTitle)}
+                    placeholder="Título del sermón o estudio..."
+                    className="flex-1 bg-transparent font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-b border-transparent focus:border-amber-500 pb-0.5 transition-colors"
+                  />
+                ) : (
+                  <div className="flex-1 flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs font-bold tracking-wide uppercase">
+                      <Eye className="w-3.5 h-3.5" />
+                      Modo Púlpito
+                    </span>
+                    <span className="text-xs text-stone-400 truncate hidden sm:inline">
+                      Vista limpia para predicación
+                    </span>
+                  </div>
+                )}
 
                 {/* Alternador de Modo de Trabajo */}
                 <div className="flex items-center bg-stone-200 dark:bg-stone-800 rounded-lg p-0.5 text-xs font-medium">
