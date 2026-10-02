@@ -32,6 +32,7 @@ export const App: React.FC = () => {
   // Modales
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchInitialQuery, setSearchInitialQuery] = useState('');
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
@@ -744,8 +745,12 @@ export const App: React.FC = () => {
 
       <SearchModal
         isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
+        onClose={() => {
+          setIsSearchOpen(false);
+          setSearchInitialQuery('');
+        }}
         currentBook={currentBook}
+        initialQuery={searchInitialQuery}
         onSelectVerse={(bId, ch, v) => handleJumpToReference(bId, ch, v)}
       />
 
@@ -818,6 +823,7 @@ export const App: React.FC = () => {
         initialTab={lexiconInitialTab}
         onJumpToReference={handleJumpToReference}
         onSearchGlobal={(term) => {
+          setSearchInitialQuery(term);
           setIsSearchOpen(true);
         }}
       />

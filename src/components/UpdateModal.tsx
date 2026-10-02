@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, 
   RefreshCw, 
-  CheckCircle2, 
   Download, 
   ExternalLink, 
   GitBranch, 
@@ -15,7 +14,7 @@ import {
   Sparkles 
 } from 'lucide-react';
 import { UpdateCheckResult } from '../types';
-import { updateService, GITHUB_REPO_URL, GITHUB_RELEASES_URL } from '../services/updateService';
+import { updateService } from '../services/updateService';
 
 interface UpdateModalProps {
   isOpen: boolean;

@@ -5,10 +5,8 @@ import {
   Copy, 
   Check, 
   Sparkles, 
-  Image as ImageIcon, 
   Smartphone, 
   Square, 
-  Type, 
   AlignLeft, 
   AlignCenter 
 } from 'lucide-react';

@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Search, 
-  BookOpen, 
   Languages, 
   Sparkles, 
   Copy, 
   Check, 
   ArrowUpRight, 
-  Filter, 
   Scroll,
   BookMarked,
   ChevronRight
 } from 'lucide-react';
-import { Book, StrongEntry, CrossReferenceItem, TheologicalTerm, StrongLanguage } from '../types';
+import { Book, StrongEntry, CrossReferenceItem, StrongLanguage } from '../types';
 import { lexiconService } from '../services/lexiconService';
 import { bibleService } from '../services/bibleService';
 

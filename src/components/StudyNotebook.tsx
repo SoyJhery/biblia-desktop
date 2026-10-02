@@ -4,7 +4,6 @@ import {
   Plus,
   Trash2,
   Search,
-  Tag,
   Copy,
   Check,
   Download,
@@ -24,11 +23,9 @@ import {
   Eye,
   Edit3,
   Link2,
-  ExternalLink,
   BookOpen,
   Calendar,
   Sparkles,
-  Type,
   Minus,
 } from 'lucide-react';
 import { StudyNote, LinkedVerse } from '../types';

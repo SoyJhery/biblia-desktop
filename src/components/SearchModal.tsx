@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search as SearchIcon, X, BookOpen, ArrowRight, CornerDownLeft } from 'lucide-react';
-import { Book, SearchResult, Testament } from '../types';
+import { Search as SearchIcon, X, ArrowRight } from 'lucide-react';
+import { Book, Testament } from '../types';
 import { bibleService } from '../services/bibleService';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentBook: Book;
+  initialQuery?: string;
   onSelectVerse: (bookId: number, chapter: number, verse: number) => void;
 }
 
@@ -14,16 +15,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
   currentBook,
+  initialQuery = '',
   onSelectVerse,
 }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [scope, setScope] = useState<'all' | 'AT' | 'NT' | 'book'>('all');
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (initialQuery) {
+        setQuery(initialQuery);
+      }
+    } else {
       setQuery('');
     }
-  }, [isOpen]);
+  }, [isOpen, initialQuery]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

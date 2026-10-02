@@ -37,6 +37,7 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
   onAddToCollection,
   onOpenCardStudio,
   onSendToNotebook,
+  onOpenLexicon,
   onBookmark,
   onCopy,
 }) => {

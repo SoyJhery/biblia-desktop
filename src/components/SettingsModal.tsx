@@ -7,16 +7,13 @@ import {
   Coffee, 
   Download, 
   Upload, 
-  Type, 
   RotateCcw,
-  CheckCircle2,
   Mail,
-  Heart,
   Copy,
   Check,
   RefreshCw
 } from 'lucide-react';
-import { ThemeMode, ReaderFont, UserSettings } from '../types';
+import { UserSettings } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -212,6 +209,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               >
                 <Upload className="w-4 h-4 text-blue-500" />
                 <span>Restaurar Respaldo</span>
+              </button>
+            </div>
+
+            <div className="mt-2.5 flex justify-end">
+              <button
+                type="button"
+                onClick={onResetData}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Restablecer datos de fábrica</span>
               </button>
             </div>
           </div>

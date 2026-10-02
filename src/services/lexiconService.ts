@@ -74,7 +74,6 @@ export const lexiconService = {
 
     const data = await getStrongData();
     const norm = normalizeText(trimmed);
-    const upper = trimmed.toUpperCase();
     const max = options?.maxResults || 60;
     const langFilter = options?.lang || 'all';
 

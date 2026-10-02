@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Star, Bookmark, Tag, BookMarked } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Bookmark, BookMarked } from 'lucide-react';
 import { Book, Collection, Favorite, Highlight, UserSettings } from '../types';
 
 interface ReaderProps {
