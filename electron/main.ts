@@ -2,6 +2,8 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+
 let mainWindow: BrowserWindow | null = null;
 
 // En Linux, deshabilitar aceleración por hardware para evitar fallos de controladores gráficos iHD/VA-API
@@ -41,7 +43,9 @@ function createWindow() {
   });
 
   mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
-    console.log(`[Renderer]: ${message} (${sourceId}:${line})`);
+    if (!message.includes('Electron Security Warning')) {
+      console.log(`[Renderer]: ${message} (${sourceId}:${line})`);
+    }
   });
 
   mainWindow.webContents.on('render-process-gone', (event, details) => {
