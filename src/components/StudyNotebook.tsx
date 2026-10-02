@@ -365,6 +365,18 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     [activeNote, localTitle, onUpdateNote]
   );
 
+  // Limpieza y persistencia inmediata al desmontar o cambiar de nota
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        if (editorRef.current && activeNote) {
+          persistChanges(editorRef.current.innerHTML);
+        }
+      }
+    };
+  }, [activeNote, persistChanges]);
+
   // Manejador de entrada de texto directo en el editor visual con debounce suave
   const handleEditorInput = () => {
     if (!editorRef.current || !activeNote) return;
@@ -419,6 +431,11 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       // Si el cursor no estaba dentro del editor, anexar al final de forma segura
       editorRef.current.insertAdjacentHTML('beforeend', htmlToInsert);
       handleEditorInput();
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.scrollTop = editorRef.current.scrollHeight;
+        }
+      }, 50);
       return;
     }
 

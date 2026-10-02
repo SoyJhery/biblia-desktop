@@ -121,6 +121,16 @@ export const VerseCardModal: React.FC<VerseCardModalProps> = ({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   const currentThemeConfig = THEMES.find((t) => t.id === selectedTheme) || THEMES[0];
 
   // Algoritmo de ajuste de texto en canvas
@@ -285,7 +295,10 @@ export const VerseCardModal: React.FC<VerseCardModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in"
+      onClick={onClose}
+    >
       <div 
         className="w-full max-w-4xl max-h-[92vh] bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 flex flex-col md:flex-row overflow-hidden text-stone-800 dark:text-stone-100"
         onClick={(e) => e.stopPropagation()}

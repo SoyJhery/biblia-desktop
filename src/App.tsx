@@ -516,12 +516,13 @@ export const App: React.FC = () => {
 
     setActiveNoteId((prevId) => {
       if (prevId === id) {
-        const remaining = (userData.notes || []).filter((n) => n.id !== id);
+        const currentNotes = storageService.getData().notes || [];
+        const remaining = currentNotes.filter((n) => n.id !== id);
         return remaining.length > 0 ? remaining[0].id : null;
       }
       return prevId;
     });
-  }, [userData.notes]);
+  }, []);
 
   const handleSendSelectionToNotebook = useCallback(() => {
     if (selectedVerses.length === 0) return;
@@ -583,6 +584,15 @@ export const App: React.FC = () => {
     setIsLexiconOpen(true);
   }, [selectedVerses]);
 
+  // Asegurar persistencia de datos al cerrar la aplicación o ventana
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      storageService.flush();
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   // Atajos de teclado globales
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -597,10 +607,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setIsSearchOpen(true);
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+      if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'k' || e.key.toLowerCase() === 'f')) {
         e.preventDefault();
         setIsSearchOpen(true);
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
@@ -609,13 +616,22 @@ export const App: React.FC = () => {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
         e.preventDefault();
         handleOpenLexicon('strong');
+      } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+        e.preventDefault();
+        setIsSettingsOpen(true);
+      } else if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (canPrev) handlePrevChapter();
+      } else if (e.altKey && e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (canNext) handleNextChapter();
       } else if (e.key === 'Escape') {
         setSelectedVerses([]);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleOpenLexicon]);
+  }, [handleOpenLexicon, canPrev, canNext, handlePrevChapter, handleNextChapter]);
 
   if (!isLoaded) {
     return (

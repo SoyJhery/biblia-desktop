@@ -162,6 +162,8 @@ let memoryData: BibleUserData = initialData;
 let isLoaded = false;
 let saveTimeout: any = null;
 
+let pendingResolvers: Array<() => void> = [];
+
 export const storageService = {
   async load(): Promise<BibleUserData> {
     if (isLoaded) return memoryData;
@@ -208,14 +210,34 @@ export const storageService = {
     return memoryData;
   },
 
+  async flush(): Promise<void> {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+    }
+    try {
+      if (window.electronAPI?.saveUserData) {
+        await window.electronAPI.saveUserData(memoryData);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryData));
+    } catch (e) {
+      console.error('Error al vaciar datos de usuario:', e);
+    } finally {
+      const resolvers = [...pendingResolvers];
+      pendingResolvers = [];
+      resolvers.forEach((r) => r());
+    }
+  },
+
   async save(data: BibleUserData): Promise<void> {
     memoryData = data;
 
-    // Debounce disk/storage writes to optimize performance
-    if (saveTimeout) clearTimeout(saveTimeout);
-
     return new Promise((resolve) => {
+      pendingResolvers.push(resolve);
+      if (saveTimeout) clearTimeout(saveTimeout);
+
       saveTimeout = setTimeout(async () => {
+        saveTimeout = null;
         try {
           if (window.electronAPI?.saveUserData) {
             await window.electronAPI.saveUserData(memoryData);
@@ -223,8 +245,11 @@ export const storageService = {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(memoryData));
         } catch (e) {
           console.error('Error al guardar datos de usuario:', e);
+        } finally {
+          const resolvers = [...pendingResolvers];
+          pendingResolvers = [];
+          resolvers.forEach((r) => r());
         }
-        resolve();
       }, 250);
     });
   },

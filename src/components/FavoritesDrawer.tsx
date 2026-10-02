@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Star, Trash2, BookOpen, Copy, Check, Search } from 'lucide-react';
 import { Favorite } from '../types';
 import { bibleService } from '../services/bibleService';
@@ -20,6 +20,16 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
 }) => {
   const [filterQuery, setFilterQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -47,7 +57,10 @@ export const FavoritesDrawer: React.FC<FavoritesDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
       <div 
         className="w-full max-w-md h-full bg-white dark:bg-stone-900 shadow-2xl border-l border-stone-200 dark:border-stone-800 flex flex-col text-stone-800 dark:text-stone-100"
         onClick={(e) => e.stopPropagation()}

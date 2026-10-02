@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Bookmark as BookmarkIcon, Trash2, BookOpen, Plus, Clock } from 'lucide-react';
 import { Bookmark, Book } from '../types';
 import { bibleService } from '../services/bibleService';
@@ -28,6 +28,16 @@ export const BookmarksDrawer: React.FC<BookmarksDrawerProps> = ({
   const [newNote, setNewNote] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleCreate = (e: React.FormEvent) => {
@@ -40,7 +50,10 @@ export const BookmarksDrawer: React.FC<BookmarksDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-end bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
       <div 
         className="w-full max-w-md h-full bg-white dark:bg-stone-900 shadow-2xl border-l border-stone-200 dark:border-stone-800 flex flex-col text-stone-800 dark:text-stone-100"
         onClick={(e) => e.stopPropagation()}
