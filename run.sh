@@ -23,6 +23,6 @@ if [ ! -d "dist" ] || [ ! -d "dist-electron" ]; then
   npm run build
 fi
 
-# Establecer entorno de producción y ejecutar
+# Establecer entorno de producción y ejecutar filtrando avisos cosméticos de temas GTK del sistema
 export NODE_ENV=production
-exec npx electron . "$@"
+exec npx electron . "$@" 2> >(grep -v -E "Gtk-WARNING|Theme parsing error" >&2)
