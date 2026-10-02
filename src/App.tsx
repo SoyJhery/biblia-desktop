@@ -11,9 +11,11 @@ import { SettingsModal } from './components/SettingsModal';
 import { VerseCardModal } from './components/VerseCardModal';
 import { StudyNotebook } from './components/StudyNotebook';
 import { LexiconModal } from './components/LexiconModal';
+import { UpdateModal } from './components/UpdateModal';
 
 import { bibleService } from './services/bibleService';
 import { lexiconService } from './services/lexiconService';
+import { updateService } from './services/updateService';
 import { storageService, initialData, BibleUserData } from './services/storageService';
 import { HighlightColor, UserSettings, CollectionItem, StudyNote, LinkedVerse } from './types';
 
@@ -40,6 +42,8 @@ export const App: React.FC = () => {
   const [isLexiconOpen, setIsLexiconOpen] = useState(false);
   const [lexiconInitialTab, setLexiconInitialTab] = useState<'cross_refs' | 'strong' | 'theology'>('cross_refs');
   const [lexiconSelectedVerse, setLexiconSelectedVerse] = useState<number>(1);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [hasPendingUpdate, setHasPendingUpdate] = useState(false);
 
   // Selección pendiente para el modal de grupos
   const [pendingSelection, setPendingSelection] = useState<{
@@ -77,6 +81,20 @@ export const App: React.FC = () => {
       root.classList.add('sepia');
     }
   }, [userData.settings.theme]);
+
+  // Comprobar actualizaciones en segundo plano al iniciar
+  useEffect(() => {
+    if (isLoaded && userData.settings.autoCheckUpdates !== false) {
+      const timer = setTimeout(() => {
+        updateService.checkForUpdates(userData.settings.githubToken).then((res) => {
+          if (res.hasUpdate) {
+            setHasPendingUpdate(true);
+          }
+        }).catch(() => {});
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoaded, userData.settings.autoCheckUpdates, userData.settings.githubToken]);
 
   // Persistir último capítulo leído al cambiar
   const saveLastRead = useCallback((bookId: number, chapter: number, verse?: number) => {
@@ -632,6 +650,8 @@ export const App: React.FC = () => {
         isNotebookOpen={isNotebookOpen}
         onToggleNotebook={handleToggleNotebook}
         notesCount={(userData.notes || []).length}
+        hasPendingUpdate={hasPendingUpdate}
+        onOpenUpdates={() => setIsUpdateModalOpen(true)}
       />
 
       {/* Main Workspace: Split-View Bible Reader + Study Notebook */}
@@ -785,6 +805,7 @@ export const App: React.FC = () => {
             storageService.save(initialData);
           }
         }}
+        onOpenUpdates={() => setIsUpdateModalOpen(true)}
       />
 
       {/* Centro de Concordancia Strong, Léxico y Referencias Cruzadas TSK */}
@@ -798,6 +819,16 @@ export const App: React.FC = () => {
         onJumpToReference={handleJumpToReference}
         onSearchGlobal={(term) => {
           setIsSearchOpen(true);
+        }}
+      />
+
+      {/* Centro de Actualizaciones & GitHub */}
+      <UpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        savedGithubToken={userData.settings.githubToken || ''}
+        onSaveGithubToken={(token) => {
+          handleUpdateSettings({ githubToken: token });
         }}
       />
     </div>

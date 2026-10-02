@@ -78,6 +78,9 @@ export interface UserSettings {
     chapter: number;
     verse?: number;
   };
+  autoCheckUpdates?: boolean;
+  githubToken?: string;
+  lastUpdateCheck?: string;
 }
 
 export interface SearchResult {
@@ -144,5 +147,38 @@ export interface TheologicalTerm {
   shortSummary: string;
   explanation: string;
   keyVerses: string[];
+}
+
+export interface GitCommitInfo {
+  hash: string;
+  message: string;
+  date: string;
+}
+
+export interface ReleaseAssetInfo {
+  name: string;
+  downloadUrl: string;
+  size: number;
+}
+
+export interface ReleaseInfo {
+  tagName: string;
+  title: string;
+  notes: string;
+  publishedAt: string;
+  url: string;
+  assets?: ReleaseAssetInfo[];
+}
+
+export interface UpdateCheckResult {
+  hasUpdate: boolean;
+  mode: 'git' | 'release' | 'none';
+  currentVersion: string;
+  latestVersion?: string;
+  currentCommit?: string;
+  pendingCommits?: GitCommitInfo[];
+  releaseInfo?: ReleaseInfo;
+  lastChecked: string;
+  error?: string;
 }
 

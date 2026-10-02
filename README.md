@@ -44,6 +44,12 @@ Proporcionar una experiencia integral, 100% offline, altamente estética y sin d
 - **Glosario de Términos Teológicos Fundamentales:** Estudio interactivo de las palabras maestras de la revelación (Shalom, Hesed, Ruaj, Elohim, YHWH, Bará, Ágape, Logos, Pneuma, Pistis, Charis, Koinonía, etc.).
 - **Atajo global:** Abre la concordancia y el buscador léxico en cualquier momento con `Ctrl+L`.
 
+### 🔄 Centro de Actualizaciones & Sincronización con GitHub
+- **Comprobación en 1 Clic:** Verifica directamente contra el repositorio oficial `SoyJhery/biblia-desktop` (commits en `master` y lanzamientos de releases).
+- **Actualización automática Git Sync:** En entornos de escritorio con clon local, sincroniza los nuevos commits mediante `git pull origin master`, reconstruye el entorno y recarga la ventana al instante.
+- **Gestión de Releases:** Detección de versiones publicadas con descarga directa de ejecutables (`.exe`) y notas de la versión.
+- **Notificación en tiempo real:** Distintivo luminoso en el encabezado y sección en Ajustes cuando hay mejoras disponibles.
+
 ---
 
 ## 3. 🗺️ Roadmap de Mejoras (Visión de Futuro)

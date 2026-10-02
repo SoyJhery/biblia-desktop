@@ -12,7 +12,8 @@ import {
   Moon, 
   Coffee,
   FileText,
-  Languages
+  Languages,
+  Sparkles
 } from 'lucide-react';
 import { Book, ThemeMode } from '../types';
 
@@ -38,6 +39,8 @@ interface HeaderProps {
   isNotebookOpen: boolean;
   onToggleNotebook: () => void;
   notesCount: number;
+  hasPendingUpdate?: boolean;
+  onOpenUpdates?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -62,6 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
   isNotebookOpen,
   onToggleNotebook,
   notesCount,
+  hasPendingUpdate = false,
+  onOpenUpdates,
 }) => {
   return (
     <header className="h-14 border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md px-4 flex items-center justify-between z-30 select-none transition-colors">
@@ -194,6 +199,18 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           )}
         </button>
+
+        {/* Update Notification Pill if update available */}
+        {hasPendingUpdate && onOpenUpdates && (
+          <button
+            onClick={onOpenUpdates}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 text-amber-600 dark:text-amber-400 border border-amber-500/40 text-xs font-bold animate-pulse transition-all shadow-xs"
+            title="¡Nueva actualización disponible en GitHub! Clic para ver y sincronizar"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span className="hidden sm:inline">Actualización</span>
+          </button>
+        )}
 
         <div className="h-4 w-[1px] bg-stone-200 dark:bg-stone-800 mx-1" />
 
