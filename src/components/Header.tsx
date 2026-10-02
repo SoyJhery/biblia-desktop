@@ -11,8 +11,7 @@ import {
   Sun, 
   Moon, 
   Coffee,
-  FileText,
-  Tv
+  FileText
 } from 'lucide-react';
 import { Book, ThemeMode } from '../types';
 
@@ -29,8 +28,6 @@ interface HeaderProps {
   onOpenBookmarks: () => void;
   onOpenFavorites: () => void;
   onOpenSettings: () => void;
-  onOpenProjector?: () => void;
-  isProjectorActive?: boolean;
   theme: ThemeMode;
   onToggleTheme: () => void;
   favoritesCount: number;
@@ -62,8 +59,6 @@ export const Header: React.FC<HeaderProps> = ({
   isNotebookOpen,
   onToggleNotebook,
   notesCount,
-  onOpenProjector,
-  isProjectorActive,
 }) => {
   return (
     <header className="h-14 border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md px-4 flex items-center justify-between z-30 select-none transition-colors">
@@ -186,25 +181,6 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           )}
         </button>
-
-        {/* Projector Console / Segunda Pantalla */}
-        {onOpenProjector && (
-          <button
-            onClick={onOpenProjector}
-            className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              isProjectorActive
-                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/40 font-semibold shadow-inner'
-                : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
-            }`}
-            title="Consola de Operador & Modo Proyector / Segunda Pantalla (Ctrl+P)"
-          >
-            <Tv className="w-4 h-4 text-amber-500" />
-            <span className="hidden sm:inline">Proyector</span>
-            {isProjectorActive && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-0.5" />
-            )}
-          </button>
-        )}
 
         <div className="h-4 w-[1px] bg-stone-200 dark:bg-stone-800 mx-1" />
 

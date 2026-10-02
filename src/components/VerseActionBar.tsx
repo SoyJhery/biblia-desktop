@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles, FileText, Tv } from 'lucide-react';
+import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles, FileText } from 'lucide-react';
 import { HighlightColor } from '../types';
 
 interface VerseActionBarProps {
@@ -13,7 +13,6 @@ interface VerseActionBarProps {
   onAddToCollection: () => void;
   onOpenCardStudio: () => void;
   onSendToNotebook?: () => void;
-  onProjectSelection?: () => void;
   onBookmark: () => void;
   onCopy: () => void;
 }
@@ -37,7 +36,6 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
   onAddToCollection,
   onOpenCardStudio,
   onSendToNotebook,
-  onProjectSelection,
   onBookmark,
   onCopy,
 }) => {
@@ -153,18 +151,6 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
           >
             <FileText className="w-3.5 h-3.5 text-emerald-400" />
             <span className="hidden sm:inline">A Nota</span>
-          </button>
-        )}
-
-        {/* Project to Second Screen / TV */}
-        {onProjectSelection && (
-          <button
-            onClick={onProjectSelection}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold transition-all border border-amber-500/30 shadow-xs"
-            title="Proyectar pasaje en pantalla gigante / segunda pantalla (HDMI/OBS)"
-          >
-            <Tv className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Proyectar</span>
           </button>
         )}
 

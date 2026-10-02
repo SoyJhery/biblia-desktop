@@ -108,36 +108,3 @@ export interface StudyNote {
   updatedAt: string;
 }
 
-// Tipos para Modo Proyector y Segunda Pantalla (v0.4.0)
-export type ProjectorTheme = 'obsidian' | 'midnight' | 'papyri' | 'emerald' | 'transparent';
-export type ProjectorMode = 'full' | 'lowerThird';
-
-export interface ProjectorDisplay {
-  id: number;
-  label: string;
-  bounds: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  isPrimary: boolean;
-}
-
-export interface ProjectorSlide {
-  type: 'verse' | 'outline' | 'custom';
-  title: string;
-  subtitle?: string;
-  text: string;
-  reference?: string;
-  bookId?: number;
-  chapter?: number;
-  verse?: number;
-  theme: ProjectorTheme;
-  mode: ProjectorMode;
-  fontSizeMultiplier: number;
-  blackout: boolean;
-  logo: boolean;
-  timestamp: number;
-}
-

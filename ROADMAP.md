@@ -59,17 +59,16 @@ flowchart LR
 ---
 
 ## 🚀 Fase 4 — Modo Proyector / Segunda Pantalla (`v0.4.0`)
-*Estado: Completado y publicado.*
+*Estado: Próximo desarrollo.*
 
-- [x] **Detección multimonitor:** Reconocimiento automático de pantallas secundarias conectadas por HDMI, DisplayPort, VGA o proyectores inalámbricos mediante Electron `screen` API.
-- [x] **Ventana independiente de proyección:** Ventana dedicada sin bordes (*borderless fullscreen*) que se proyecta en la segunda pantalla (`projectorWindow`).
-- [x] **Consola de operador:** Panel de control en la pantalla principal para que el operador bíblico envíe versículos a la pantalla con un clic, mantenga una pantalla en negro (*blackout*) para momentos de oración o el logotipo sagrado de espera (*logo screen*).
-- [x] **Modos de visualización:**
-  - Modo Versículo Completo (fondo oscuro de alto contraste y tipografía dorada/blanca ultra legible con auto-escala adaptable).
-  - Modo Puntos del Sermón (proyección directa y sincronizada desde el Cuaderno de Bosquejos).
-  - Modo Tercio Inferior (*Lower Thirds*) para integración profesional con transmisiones en vivo (OBS Studio / vMix).
-- [x] **Fondos dinámicos litúrgicos:** Selección de fondos y gradientes solemnes (*Obsidiana Dorada*, *Azul Medianoche*, *Papiro Solemne*, *Paz Esmeralda* y fondo transparente para streaming).
-- [x] **Atajos de operador eclesiástico:** F9 para Blackout instantáneo, F10 para Pantalla de Espera, F para Pantalla Completa y Ctrl+Shift+P para Consola de Operador.
+- [ ] **Detección multimonitor:** Reconocimiento automático de pantallas secundarias conectadas por HDMI, DisplayPort, VGA o proyectores inalámbricos.
+- [ ] **Ventana independiente de proyección:** Ventana dedicada sin bordes (*borderless fullscreen*) que se proyecta en la segunda pantalla.
+- [ ] **Consola de operador:** Panel de control en la pantalla principal para que el operador bíblico envíe versículos a la pantalla con un clic, mantenga una pantalla en negro (*blackout*) o con el logotipo de la iglesia.
+- [ ] **Modos de visualización:**
+  - Modo Versículo Completo (fondo oscuro de alto contraste y tipografía dorada/blanca ultra legible).
+  - Modo Puntos del Sermón (proyección sincronizada desde el Cuaderno de Bosquejos).
+  - Modo Tercio Inferior (*Lower Thirds*) para integración con transmisiones en vivo (OBS Studio / vMix).
+- [ ] **Fondos dinámicos litúrgicos:** Selección de fondos sutiles y gradientes solemnes para la proyección.
 
 ---
 

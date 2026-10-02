@@ -9,25 +9,13 @@ import { FavoritesDrawer } from './components/FavoritesDrawer';
 import { SearchModal } from './components/SearchModal';
 import { SettingsModal } from './components/SettingsModal';
 import { VerseCardModal } from './components/VerseCardModal';
-import { StudyNotebook, cleanHtmlContent } from './components/StudyNotebook';
-import { ProjectorScreen } from './components/ProjectorScreen';
-import { ProjectorConsoleModal } from './components/ProjectorConsoleModal';
+import { StudyNotebook } from './components/StudyNotebook';
 
 import { bibleService } from './services/bibleService';
 import { storageService, initialData, BibleUserData } from './services/storageService';
-import { projectorService } from './services/projectorService';
 import { HighlightColor, UserSettings, CollectionItem, StudyNote, LinkedVerse } from './types';
 
 export const App: React.FC = () => {
-  // Si la ventana fue abierta como pantalla de proyección secundaria
-  const isProjectorMode = useMemo(() => {
-    return window.location.search.includes('mode=projector') || window.location.hash.includes('projector');
-  }, []);
-
-  if (isProjectorMode) {
-    return <ProjectorScreen />;
-  }
-
   const books = useMemo(() => bibleService.getBooks(), []);
   const [userData, setUserData] = useState<BibleUserData>(initialData);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -47,17 +35,6 @@ export const App: React.FC = () => {
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isNotebookOpen, setIsNotebookOpen] = useState(false);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
-  const [isProjectorConsoleOpen, setIsProjectorConsoleOpen] = useState(false);
-  const [isProjectorActive, setIsProjectorActive] = useState(false);
-
-  // Escuchar estado del proyector (abierto/cerrado)
-  useEffect(() => {
-    projectorService.getStatus().then((st) => setIsProjectorActive(st.isOpen));
-    const unsub = projectorService.onStatusChange((st) => {
-      setIsProjectorActive(st.isOpen);
-    });
-    return () => unsub();
-  }, []);
 
   // Selección pendiente para el modal de grupos
   const [pendingSelection, setPendingSelection] = useState<{
@@ -561,15 +538,9 @@ export const App: React.FC = () => {
       );
       const updatedLinked = alreadyLinked ? active.linkedVerses : [...(active.linkedVerses || []), newLink];
 
-      // Idempotencia: Verificar si el pasaje ya existe en la nota para evitar tarjetas repetidas
-      const isAlreadyInContent = (active.content || '').toLowerCase().includes(ref.toLowerCase());
-      const newContent = isAlreadyInContent
-        ? active.content
-        : ((active.content && active.content !== '<p><br></p>' ? active.content : '') + '\n' + visualCardHtml);
-
       handleUpdateNote({
         ...active,
-        content: cleanHtmlContent(newContent, active.title),
+        content: (active.content || '') + visualCardHtml,
         linkedVerses: updatedLinked,
         updatedAt: new Date().toISOString(),
       });
@@ -581,46 +552,11 @@ export const App: React.FC = () => {
     setSelectedVerses([]);
   }, [selectedVerses, currentBookId, currentChapter, currentVerses, userData.notes, activeNoteId, handleUpdateNote, handleCreateNote]);
 
-  // Transmisión inmediata a Segunda Pantalla / Proyector
-  const handleProjectSelection = useCallback(async () => {
-    if (selectedVerses.length === 0) return;
-
-    const sorted = [...selectedVerses].sort((a, b) => a - b);
-    const vStart = sorted[0];
-    const vEnd = sorted[sorted.length - 1];
-    const versesList: string[] = [];
-    for (let v = vStart; v <= vEnd; v++) {
-      const t = currentVerses[v - 1];
-      if (t) versesList.push(sorted.length > 1 ? `${v}. ${t}` : t);
-    }
-    const snippet = versesList.join(' ');
-
-    const currentSlide = projectorService.getCurrentSlide();
-    const slide = projectorService.createVerseSlide(
-      currentBook.name,
-      currentChapter,
-      vStart,
-      vEnd > vStart ? vEnd : undefined,
-      snippet,
-      currentSlide.theme,
-      currentSlide.mode,
-      currentSlide.fontSizeMultiplier
-    );
-
-    projectorService.sendSlide(slide);
-
-    const st = await projectorService.getStatus();
-    if (!st.isOpen) {
-      setIsProjectorConsoleOpen(true);
-    }
-  }, [selectedVerses, currentVerses, currentBook.name, currentChapter]);
-
   // Atajos de teclado globales
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      const isInsideEditor = target && (target.closest?.('.study-editor') || target.closest?.('[contenteditable="true"]'));
-      const isEditable = isInsideEditor || target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable;
+      const isEditable = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
 
       // Si el usuario está escribiendo dentro de un editor, input o textarea, permitir la digitación natural
       if (isEditable) {
@@ -639,26 +575,6 @@ export const App: React.FC = () => {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
         e.preventDefault();
         setIsNotebookOpen((prev) => !prev);
-      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        setIsProjectorConsoleOpen((prev) => !prev);
-      } else if (e.key === 'F9') {
-        e.preventDefault();
-        const curr = projectorService.getCurrentSlide();
-        projectorService.sendSlide({
-          ...curr,
-          blackout: !curr.blackout,
-          timestamp: Date.now(),
-        });
-      } else if (e.key === 'F10') {
-        e.preventDefault();
-        const curr = projectorService.getCurrentSlide();
-        projectorService.sendSlide({
-          ...curr,
-          logo: !curr.logo,
-          blackout: false,
-          timestamp: Date.now(),
-        });
       } else if (e.key === 'Escape') {
         setSelectedVerses([]);
       }
@@ -692,8 +608,6 @@ export const App: React.FC = () => {
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onOpenFavorites={() => setIsFavoritesOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenProjector={() => setIsProjectorConsoleOpen(true)}
-        isProjectorActive={isProjectorActive}
         theme={userData.settings.theme}
         onToggleTheme={handleToggleTheme}
         favoritesCount={Object.keys(userData.favorites).length}
@@ -758,7 +672,6 @@ export const App: React.FC = () => {
         onAddToCollection={handleOpenAddToCollection}
         onOpenCardStudio={() => setIsCardModalOpen(true)}
         onSendToNotebook={handleSendSelectionToNotebook}
-        onProjectSelection={handleProjectSelection}
         onBookmark={() => {
           if (selectedVerses.length > 0) {
             handleAddBookmark(
@@ -853,20 +766,6 @@ export const App: React.FC = () => {
             setUserData(initialData);
             storageService.save(initialData);
           }
-        }}
-      />
-
-      {/* Consola de Operador & Modo Proyector Multimonitor */}
-      <ProjectorConsoleModal
-        isOpen={isProjectorConsoleOpen}
-        onClose={() => setIsProjectorConsoleOpen(false)}
-        currentBookName={currentBook.name}
-        currentBookId={currentBookId}
-        currentChapter={currentChapter}
-        currentVerses={currentVerses}
-        selectedVerses={selectedVerses}
-        onSelectVerse={(vNum) => {
-          setTargetVerseToScroll(vNum);
         }}
       />
     </div>
