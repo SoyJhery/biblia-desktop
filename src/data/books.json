@@ -1,0 +1,596 @@
+[
+  {
+    "id": 1,
+    "name": "Génesis",
+    "abbrev": "Gén",
+    "testament": "Antiguo Testamento",
+    "category": "Pentateuco",
+    "chaptersCount": 50,
+    "versesCount": 1533
+  },
+  {
+    "id": 2,
+    "name": "Éxodo",
+    "abbrev": "Éx",
+    "testament": "Antiguo Testamento",
+    "category": "Pentateuco",
+    "chaptersCount": 40,
+    "versesCount": 1213
+  },
+  {
+    "id": 3,
+    "name": "Levítico",
+    "abbrev": "Lev",
+    "testament": "Antiguo Testamento",
+    "category": "Pentateuco",
+    "chaptersCount": 27,
+    "versesCount": 859
+  },
+  {
+    "id": 4,
+    "name": "Números",
+    "abbrev": "Núm",
+    "testament": "Antiguo Testamento",
+    "category": "Pentateuco",
+    "chaptersCount": 36,
+    "versesCount": 1288
+  },
+  {
+    "id": 5,
+    "name": "Deuteronomio",
+    "abbrev": "Deut",
+    "testament": "Antiguo Testamento",
+    "category": "Pentateuco",
+    "chaptersCount": 34,
+    "versesCount": 959
+  },
+  {
+    "id": 6,
+    "name": "Josué",
+    "abbrev": "Jos",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 24,
+    "versesCount": 658
+  },
+  {
+    "id": 7,
+    "name": "Jueces",
+    "abbrev": "Jue",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 21,
+    "versesCount": 618
+  },
+  {
+    "id": 8,
+    "name": "Rut",
+    "abbrev": "Rut",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 4,
+    "versesCount": 85
+  },
+  {
+    "id": 9,
+    "name": "1 Samuel",
+    "abbrev": "1 Sam",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 31,
+    "versesCount": 810
+  },
+  {
+    "id": 10,
+    "name": "2 Samuel",
+    "abbrev": "2 Sam",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 24,
+    "versesCount": 695
+  },
+  {
+    "id": 11,
+    "name": "1 Reyes",
+    "abbrev": "1 Rey",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 22,
+    "versesCount": 816
+  },
+  {
+    "id": 12,
+    "name": "2 Reyes",
+    "abbrev": "2 Rey",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 25,
+    "versesCount": 719
+  },
+  {
+    "id": 13,
+    "name": "1 Crónicas",
+    "abbrev": "1 Crón",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 29,
+    "versesCount": 942
+  },
+  {
+    "id": 14,
+    "name": "2 Crónicas",
+    "abbrev": "2 Crón",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 36,
+    "versesCount": 822
+  },
+  {
+    "id": 15,
+    "name": "Esdras",
+    "abbrev": "Esd",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 10,
+    "versesCount": 280
+  },
+  {
+    "id": 16,
+    "name": "Nehemías",
+    "abbrev": "Neh",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 13,
+    "versesCount": 406
+  },
+  {
+    "id": 17,
+    "name": "Ester",
+    "abbrev": "Est",
+    "testament": "Antiguo Testamento",
+    "category": "Históricos",
+    "chaptersCount": 10,
+    "versesCount": 167
+  },
+  {
+    "id": 18,
+    "name": "Job",
+    "abbrev": "Job",
+    "testament": "Antiguo Testamento",
+    "category": "Poéticos",
+    "chaptersCount": 42,
+    "versesCount": 1070
+  },
+  {
+    "id": 19,
+    "name": "Salmos",
+    "abbrev": "Sal",
+    "testament": "Antiguo Testamento",
+    "category": "Poéticos",
+    "chaptersCount": 150,
+    "versesCount": 2462
+  },
+  {
+    "id": 20,
+    "name": "Proverbios",
+    "abbrev": "Prov",
+    "testament": "Antiguo Testamento",
+    "category": "Poéticos",
+    "chaptersCount": 31,
+    "versesCount": 915
+  },
+  {
+    "id": 21,
+    "name": "Eclesiastés",
+    "abbrev": "Ecl",
+    "testament": "Antiguo Testamento",
+    "category": "Poéticos",
+    "chaptersCount": 12,
+    "versesCount": 222
+  },
+  {
+    "id": 22,
+    "name": "Cantares",
+    "abbrev": "Cant",
+    "testament": "Antiguo Testamento",
+    "category": "Poéticos",
+    "chaptersCount": 8,
+    "versesCount": 117
+  },
+  {
+    "id": 23,
+    "name": "Isaías",
+    "abbrev": "Isa",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Mayores",
+    "chaptersCount": 66,
+    "versesCount": 1292
+  },
+  {
+    "id": 24,
+    "name": "Jeremías",
+    "abbrev": "Jer",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Mayores",
+    "chaptersCount": 52,
+    "versesCount": 1364
+  },
+  {
+    "id": 25,
+    "name": "Lamentaciones",
+    "abbrev": "Lam",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Mayores",
+    "chaptersCount": 5,
+    "versesCount": 154
+  },
+  {
+    "id": 26,
+    "name": "Ezequiel",
+    "abbrev": "Eze",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Mayores",
+    "chaptersCount": 48,
+    "versesCount": 1273
+  },
+  {
+    "id": 27,
+    "name": "Daniel",
+    "abbrev": "Dan",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Mayores",
+    "chaptersCount": 12,
+    "versesCount": 357
+  },
+  {
+    "id": 28,
+    "name": "Oseas",
+    "abbrev": "Os",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 14,
+    "versesCount": 197
+  },
+  {
+    "id": 29,
+    "name": "Joel",
+    "abbrev": "Joel",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 3,
+    "versesCount": 73
+  },
+  {
+    "id": 30,
+    "name": "Amós",
+    "abbrev": "Amós",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 9,
+    "versesCount": 146
+  },
+  {
+    "id": 31,
+    "name": "Abdías",
+    "abbrev": "Abd",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 1,
+    "versesCount": 21
+  },
+  {
+    "id": 32,
+    "name": "Jonás",
+    "abbrev": "Jon",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 4,
+    "versesCount": 48
+  },
+  {
+    "id": 33,
+    "name": "Miqueas",
+    "abbrev": "Miq",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 7,
+    "versesCount": 105
+  },
+  {
+    "id": 34,
+    "name": "Nahúm",
+    "abbrev": "Nah",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 3,
+    "versesCount": 47
+  },
+  {
+    "id": 35,
+    "name": "Habacuc",
+    "abbrev": "Hab",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 3,
+    "versesCount": 56
+  },
+  {
+    "id": 36,
+    "name": "Sofonías",
+    "abbrev": "Sof",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 3,
+    "versesCount": 53
+  },
+  {
+    "id": 37,
+    "name": "Hageo",
+    "abbrev": "Hag",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 2,
+    "versesCount": 38
+  },
+  {
+    "id": 38,
+    "name": "Zacarías",
+    "abbrev": "Zac",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 14,
+    "versesCount": 211
+  },
+  {
+    "id": 39,
+    "name": "Malaquías",
+    "abbrev": "Mal",
+    "testament": "Antiguo Testamento",
+    "category": "Profetas Menores",
+    "chaptersCount": 4,
+    "versesCount": 55
+  },
+  {
+    "id": 40,
+    "name": "Mateo",
+    "abbrev": "Mat",
+    "testament": "Nuevo Testamento",
+    "category": "Evangelios",
+    "chaptersCount": 28,
+    "versesCount": 1071
+  },
+  {
+    "id": 41,
+    "name": "Marcos",
+    "abbrev": "Mar",
+    "testament": "Nuevo Testamento",
+    "category": "Evangelios",
+    "chaptersCount": 16,
+    "versesCount": 678
+  },
+  {
+    "id": 42,
+    "name": "Lucas",
+    "abbrev": "Luc",
+    "testament": "Nuevo Testamento",
+    "category": "Evangelios",
+    "chaptersCount": 24,
+    "versesCount": 1151
+  },
+  {
+    "id": 43,
+    "name": "Juan",
+    "abbrev": "Juan",
+    "testament": "Nuevo Testamento",
+    "category": "Evangelios",
+    "chaptersCount": 21,
+    "versesCount": 879
+  },
+  {
+    "id": 44,
+    "name": "Hechos",
+    "abbrev": "Hech",
+    "testament": "Nuevo Testamento",
+    "category": "Historia",
+    "chaptersCount": 28,
+    "versesCount": 1007
+  },
+  {
+    "id": 45,
+    "name": "Romanos",
+    "abbrev": "Rom",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 16,
+    "versesCount": 433
+  },
+  {
+    "id": 46,
+    "name": "1 Corintios",
+    "abbrev": "1 Cor",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 16,
+    "versesCount": 437
+  },
+  {
+    "id": 47,
+    "name": "2 Corintios",
+    "abbrev": "2 Cor",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 13,
+    "versesCount": 257
+  },
+  {
+    "id": 48,
+    "name": "Gálatas",
+    "abbrev": "Gál",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 6,
+    "versesCount": 149
+  },
+  {
+    "id": 49,
+    "name": "Efesios",
+    "abbrev": "Ef",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 6,
+    "versesCount": 155
+  },
+  {
+    "id": 50,
+    "name": "Filipenses",
+    "abbrev": "Fil",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 4,
+    "versesCount": 104
+  },
+  {
+    "id": 51,
+    "name": "Colosenses",
+    "abbrev": "Col",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 4,
+    "versesCount": 95
+  },
+  {
+    "id": 52,
+    "name": "1 Tesalonicenses",
+    "abbrev": "1 Tes",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 5,
+    "versesCount": 89
+  },
+  {
+    "id": 53,
+    "name": "2 Tesalonicenses",
+    "abbrev": "2 Tes",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 3,
+    "versesCount": 47
+  },
+  {
+    "id": 54,
+    "name": "1 Timoteo",
+    "abbrev": "1 Tim",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 6,
+    "versesCount": 113
+  },
+  {
+    "id": 55,
+    "name": "2 Timoteo",
+    "abbrev": "2 Tim",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 4,
+    "versesCount": 83
+  },
+  {
+    "id": 56,
+    "name": "Tito",
+    "abbrev": "Tit",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 3,
+    "versesCount": 46
+  },
+  {
+    "id": 57,
+    "name": "Filemón",
+    "abbrev": "Flm",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Paulinas",
+    "chaptersCount": 1,
+    "versesCount": 25
+  },
+  {
+    "id": 58,
+    "name": "Hebreos",
+    "abbrev": "Heb",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 13,
+    "versesCount": 303
+  },
+  {
+    "id": 59,
+    "name": "Santiago",
+    "abbrev": "Sant",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 5,
+    "versesCount": 108
+  },
+  {
+    "id": 60,
+    "name": "1 Pedro",
+    "abbrev": "1 Ped",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 5,
+    "versesCount": 105
+  },
+  {
+    "id": 61,
+    "name": "2 Pedro",
+    "abbrev": "2 Ped",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 3,
+    "versesCount": 61
+  },
+  {
+    "id": 62,
+    "name": "1 Juan",
+    "abbrev": "1 Juan",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 5,
+    "versesCount": 105
+  },
+  {
+    "id": 63,
+    "name": "2 Juan",
+    "abbrev": "2 Juan",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 1,
+    "versesCount": 13
+  },
+  {
+    "id": 64,
+    "name": "3 Juan",
+    "abbrev": "3 Juan",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 1,
+    "versesCount": 15
+  },
+  {
+    "id": 65,
+    "name": "Judas",
+    "abbrev": "Jud",
+    "testament": "Nuevo Testamento",
+    "category": "Epístolas Generales",
+    "chaptersCount": 1,
+    "versesCount": 25
+  },
+  {
+    "id": 66,
+    "name": "Apocalipsis",
+    "abbrev": "Apoc",
+    "testament": "Nuevo Testamento",
+    "category": "Profecía",
+    "chaptersCount": 22,
+    "versesCount": 404
+  }
+]

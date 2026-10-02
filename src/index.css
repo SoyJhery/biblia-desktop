@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-main: #f8fafc;
+    --text-main: #1e293b;
+    --border-main: #e2e8f0;
+    --surface-main: #ffffff;
+    --surface-secondary: #f1f5f9;
+  }
+
+  .dark {
+    --bg-main: #0c0a09; /* stone-950 */
+    --text-main: #f5f5f4; /* stone-100 */
+    --border-main: #292524; /* stone-800 */
+    --surface-main: #1c1917; /* stone-900 */
+    --surface-secondary: #292524;
+  }
+
+  .sepia {
+    --bg-main: #fbf0d9;
+    --text-main: #433422;
+    --border-main: #e4d3b2;
+    --surface-main: #f4e5c7;
+    --surface-secondary: #ebdaba;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    user-select: text;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(150, 150, 150, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(150, 150, 150, 0.5);
+}
+
+/* Color Highlights */
+.hl-yellow {
+  background-color: rgba(250, 204, 21, 0.28);
+}
+.hl-green {
+  background-color: rgba(74, 222, 128, 0.28);
+}
+.hl-blue {
+  background-color: rgba(96, 165, 250, 0.28);
+}
+.hl-purple {
+  background-color: rgba(192, 132, 252, 0.28);
+}
+.hl-orange {
+  background-color: rgba(251, 146, 60, 0.28);
+}
+
+.dark .hl-yellow {
+  background-color: rgba(234, 179, 8, 0.32);
+}
+.dark .hl-green {
+  background-color: rgba(34, 197, 94, 0.30);
+}
+.dark .hl-blue {
+  background-color: rgba(59, 130, 246, 0.30);
+}
+.dark .hl-purple {
+  background-color: rgba(168, 85, 247, 0.30);
+}
+.dark .hl-orange {
+  background-color: rgba(249, 115, 22, 0.30);
+}
+
+/* Flash animation for search jumps */
+@keyframes flash-highlight {
+  0% { background-color: rgba(234, 179, 8, 0.6); }
+  100% { background-color: transparent; }
+}
+
+.flash-verse {
+  animation: flash-highlight 2s ease-out;
+}

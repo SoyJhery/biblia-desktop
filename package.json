@@ -1,0 +1,76 @@
+{
+  "name": "biblia-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicación de estudio bíblico multiplataforma (Windows y Linux) con Reina-Valera 1960, modo oscuro, favoritos, marcadores y colecciones temáticas.",
+  "author": "jhery",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev:vite": "vite --host 127.0.0.1 --port 5173",
+    "dev:electron": "electron .",
+    "dev": "concurrently -k \"npm run dev:vite\" \"wait-on tcp:127.0.0.1:5173 && npm run build:electron && npm run dev:electron\"",
+    "build:vite": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:vite && npm run build:electron",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:all": "npm run build && electron-builder -mwl"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.441.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.0.0",
+    "cross-env": "^7.0.3",
+    "electron": "^31.4.0",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.45",
+    "tailwindcss": "^3.4.11",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.3",
+    "wait-on": "^8.0.0"
+  },
+  "build": {
+    "appId": "com.biblia.desktop",
+    "productName": "Biblia RVR 1960",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Biblia RVR 1960"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education"
+    }
+  }
+}

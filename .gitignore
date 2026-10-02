@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build artifacts
+dist/
+dist-electron/
+release/
+
+# Process and runtime logs
+.server.pid
+.dev.log
+*.log
+
+# Databases and Backups
+*.db
+*.sqlite
+*.sqlite3
+backups/
+raw_data/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
