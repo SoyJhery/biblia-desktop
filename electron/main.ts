@@ -4,6 +4,11 @@ import fs from 'fs';
 
 let mainWindow: BrowserWindow | null = null;
 
+// En Linux, deshabilitar aceleración por hardware para evitar fallos de controladores gráficos iHD/VA-API
+if (process.platform === 'linux') {
+  app.disableHardwareAcceleration();
+}
+
 const isDev = process.env.NODE_ENV === 'development';
 
 function getUserDataFilePath(): string {
