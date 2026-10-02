@@ -10,8 +10,10 @@ import { SearchModal } from './components/SearchModal';
 import { SettingsModal } from './components/SettingsModal';
 import { VerseCardModal } from './components/VerseCardModal';
 import { StudyNotebook } from './components/StudyNotebook';
+import { LexiconModal } from './components/LexiconModal';
 
 import { bibleService } from './services/bibleService';
+import { lexiconService } from './services/lexiconService';
 import { storageService, initialData, BibleUserData } from './services/storageService';
 import { HighlightColor, UserSettings, CollectionItem, StudyNote, LinkedVerse } from './types';
 
@@ -35,6 +37,9 @@ export const App: React.FC = () => {
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isNotebookOpen, setIsNotebookOpen] = useState(false);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
+  const [isLexiconOpen, setIsLexiconOpen] = useState(false);
+  const [lexiconInitialTab, setLexiconInitialTab] = useState<'cross_refs' | 'strong' | 'theology'>('cross_refs');
+  const [lexiconSelectedVerse, setLexiconSelectedVerse] = useState<number>(1);
 
   // Selección pendiente para el modal de grupos
   const [pendingSelection, setPendingSelection] = useState<{
@@ -58,6 +63,7 @@ export const App: React.FC = () => {
         }
       }
       setIsLoaded(true);
+      lexiconService.preload();
     });
   }, []);
 
@@ -552,6 +558,12 @@ export const App: React.FC = () => {
     setSelectedVerses([]);
   }, [selectedVerses, currentBookId, currentChapter, currentVerses, userData.notes, activeNoteId, handleUpdateNote, handleCreateNote]);
 
+  const handleOpenLexicon = useCallback((tab: 'cross_refs' | 'strong' | 'theology' = 'strong', verse?: number) => {
+    setLexiconInitialTab(tab);
+    setLexiconSelectedVerse(verse || (selectedVerses.length > 0 ? selectedVerses[0] : 1));
+    setIsLexiconOpen(true);
+  }, [selectedVerses]);
+
   // Atajos de teclado globales
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -575,13 +587,16 @@ export const App: React.FC = () => {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
         e.preventDefault();
         setIsNotebookOpen((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        handleOpenLexicon('strong');
       } else if (e.key === 'Escape') {
         setSelectedVerses([]);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleOpenLexicon]);
 
   if (!isLoaded) {
     return (
@@ -604,6 +619,7 @@ export const App: React.FC = () => {
         canPrev={canPrev}
         canNext={canNext}
         onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenLexicon={() => handleOpenLexicon('strong')}
         onOpenCollections={() => setIsCollectionsOpen(true)}
         onOpenBookmarks={() => setIsBookmarksOpen(true)}
         onOpenFavorites={() => setIsFavoritesOpen(true)}
@@ -638,6 +654,7 @@ export const App: React.FC = () => {
             onNextChapter={handleNextChapter}
             canPrev={canPrev}
             canNext={canNext}
+            onOpenLexiconForVerse={(v) => handleOpenLexicon('cross_refs', v)}
           />
         </div>
 
@@ -672,6 +689,7 @@ export const App: React.FC = () => {
         onAddToCollection={handleOpenAddToCollection}
         onOpenCardStudio={() => setIsCardModalOpen(true)}
         onSendToNotebook={handleSendSelectionToNotebook}
+        onOpenLexicon={() => handleOpenLexicon('cross_refs')}
         onBookmark={() => {
           if (selectedVerses.length > 0) {
             handleAddBookmark(
@@ -766,6 +784,20 @@ export const App: React.FC = () => {
             setUserData(initialData);
             storageService.save(initialData);
           }
+        }}
+      />
+
+      {/* Centro de Concordancia Strong, Léxico y Referencias Cruzadas TSK */}
+      <LexiconModal
+        isOpen={isLexiconOpen}
+        onClose={() => setIsLexiconOpen(false)}
+        currentBook={currentBook}
+        currentChapter={currentChapter}
+        selectedVerse={lexiconSelectedVerse}
+        initialTab={lexiconInitialTab}
+        onJumpToReference={handleJumpToReference}
+        onSearchGlobal={(term) => {
+          setIsSearchOpen(true);
         }}
       />
     </div>

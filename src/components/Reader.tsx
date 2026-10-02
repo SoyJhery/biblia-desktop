@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Star, Bookmark, Tag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Bookmark, Tag, BookMarked } from 'lucide-react';
 import { Book, Collection, Favorite, Highlight, UserSettings } from '../types';
 
 interface ReaderProps {
@@ -19,6 +19,7 @@ interface ReaderProps {
   onNextChapter: () => void;
   canPrev: boolean;
   canNext: boolean;
+  onOpenLexiconForVerse?: (verseNumber: number) => void;
 }
 
 export const Reader: React.FC<ReaderProps> = ({
@@ -38,6 +39,7 @@ export const Reader: React.FC<ReaderProps> = ({
   onNextChapter,
   canPrev,
   canNext,
+  onOpenLexiconForVerse,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const verseRefs = useRef<Record<number, HTMLSpanElement | null>>({});
@@ -183,6 +185,20 @@ export const Reader: React.FC<ReaderProps> = ({
                       />
                     ))}
                   </span>
+                )}
+
+                {/* Subtle Hover Cross-Reference Button */}
+                {onOpenLexiconForVerse && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenLexiconForVerse(verseNumber);
+                    }}
+                    className="opacity-0 group-hover:opacity-60 hover:opacity-100! transition-opacity inline-flex items-center text-[10px] text-amber-600 dark:text-amber-400 font-mono ml-1 px-1 rounded hover:bg-amber-500/20 align-baseline select-none"
+                    title={`Ver referencias cruzadas y léxico de ${currentBook.name} ${currentChapter}:${verseNumber}`}
+                  >
+                    <BookMarked className="w-3 h-3 inline mr-0.5" />
+                  </button>
                 )}
                 {' '}
               </span>

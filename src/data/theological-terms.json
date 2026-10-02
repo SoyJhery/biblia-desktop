@@ -1,0 +1,334 @@
+[
+  {
+    "id": "term-shalom",
+    "name": "Shalom (Paz Integral)",
+    "original": "שָׁלוֹם",
+    "translit": "Shâlôwm",
+    "strongId": "H7965",
+    "testament": "Antiguo Testamento",
+    "category": "Vida Espiritual y Bienestar",
+    "shortSummary": "Mucho más que ausencia de conflicto: es plenitud, armonía con Dios, salud total y prosperidad espiritual.",
+    "explanation": "En el pensamiento bíblico hebreo, 'Shalom' no denota simplemente una tregua militar o ausencia de guerra. Proviene de la raíz 'shalam' (completar, pagar, restaurar). Describe el estado integral en el que nada falta, nada está roto y todas las áreas de la vida reposan en la perfecta justicia y favor de Dios. Jesús es profetizado como el 'Príncipe de Paz' (Sar Shalom, Isaías 9:6) y en el NT Jesús declara: 'Mi paz os dejo, mi paz os doy; yo no os la doy como el mundo la da' (Juan 14:27).",
+    "keyVerses": [
+      "Números 6:24-26",
+      "Salmos 29:11",
+      "Isaías 9:6",
+      "Jeremías 29:11",
+      "Juan 14:27",
+      "Filipenses 4:7"
+    ]
+  },
+  {
+    "id": "term-hesed",
+    "name": "Hesed (Amor Leal y Misericordia de Pacto)",
+    "original": "חֶסֶד",
+    "translit": "Chesed / Hesed",
+    "strongId": "H2617",
+    "testament": "Antiguo Testamento",
+    "category": "Atributos Divinos",
+    "shortSummary": "El amor fiel, entrañable e inquebrantable de Dios que persiste aun cuando el ser humano falla.",
+    "explanation": "'Hesed' es una de las palabras más ricas de las Escrituras. Traducida a menudo como 'misericordia', 'clemencia' o 'gran bondad', expresa el compromiso incondicional y la fidelidad eterna de Dios con Su pacto. Es el amor activo que busca el bien del otro más allá del merecimiento, resumido en el Salmo 136: 'Porque para siempre es su misericordia'.",
+    "keyVerses": [
+      "Éxodo 34:6-7",
+      "Salmos 23:6",
+      "Salmos 136:1-26",
+      "Lamentaciones 3:22-23",
+      "Miqueas 6:8",
+      "Oseas 6:6"
+    ]
+  },
+  {
+    "id": "term-ruaj",
+    "name": "Ruaj (Espíritu y Aliento Divino)",
+    "original": "רוּחַ",
+    "translit": "Rûwach / Ruaj",
+    "strongId": "H7307",
+    "testament": "Antiguo Testamento",
+    "category": "Neumatología",
+    "shortSummary": "Viento invisible pero poderoso, el aliento creador que imparte vida y la presencia soberana de Dios.",
+    "explanation": "Aparece desde el segundo versículo de la Biblia: 'y el Espíritu de Dios se movía sobre la faz de las aguas' (Génesis 1:2). 'Ruaj' es dinámico y vivificante; cuando Dios insufla Su ruaj en el polvo, el hombre llega a ser un ser viviente (Génesis 2:7). En el valle de los huesos secos (Ezequiel 37), el Ruaj de Dios resucita un ejército de entre la muerte espiritual.",
+    "keyVerses": [
+      "Génesis 1:2",
+      "Job 33:4",
+      "Salmos 104:30",
+      "Ezequiel 37:9-14",
+      "Zacarías 4:6"
+    ]
+  },
+  {
+    "id": "term-elohim",
+    "name": "Elohim (Dios Creador y Soberano)",
+    "original": "אֱלֹהִים",
+    "translit": "ʼĔlôhîym",
+    "strongId": "H430",
+    "testament": "Antiguo Testamento",
+    "category": "Nombres Divinos",
+    "shortSummary": "Nombre plural de majestad para el Dios único, Creador omnipotente y Gobernante del universo.",
+    "explanation": "El sustantivo 'Elohim' posee terminación plural gramatical hebrea (-im), utilizada teológicamente como plural de excelencia y majestad suprema, insinuando en el misterio de la revelación progresiva la Santa Trinidad. En Génesis 1:1 rige el verbo singular 'creó' (bará), demostrando que un único Dios creador actúa en infinita grandeza.",
+    "keyVerses": [
+      "Génesis 1:1",
+      "Deuteronomio 10:17",
+      "Salmos 8:5",
+      "Isaías 45:18",
+      "Salmos 90:1-2"
+    ]
+  },
+  {
+    "id": "term-yahweh",
+    "name": "Yahweh / YHWH (El SEÑOR del Pacto)",
+    "original": "יְהֹוָה",
+    "translit": "Yehôvâh / Yahweh",
+    "strongId": "H3068",
+    "testament": "Antiguo Testamento",
+    "category": "Nombres Divinos",
+    "shortSummary": "El nombre sagrado inefable: El Eterno, el que existe por Sí mismo y nunca abandona a Su pueblo.",
+    "explanation": "Revelado a Moisés en la zarza ardiente: 'YO SOY EL QUE SOY' (Éxodo 3:14). El Tetragrámaton YHWH subraya la autoexistencia, inmutabilidad y fidelidad del Dios vivo. En las traducciones al español como Reina-Valera 1960 se vierte con mayúsculas 'JEHOVÁ' o 'el SEÑOR'.",
+    "keyVerses": [
+      "Éxodo 3:14-15",
+      "Éxodo 6:2-3",
+      "Salmos 23:1",
+      "Isaías 42:8",
+      "Malaquías 3:6"
+    ]
+  },
+  {
+    "id": "term-bara",
+    "name": "Bará (Crear de la Nada)",
+    "original": "בָּרָא",
+    "translit": "Bârâʼ",
+    "strongId": "H1254",
+    "testament": "Antiguo Testamento",
+    "category": "Creación",
+    "shortSummary": "Verbo reservado exclusivamente a la acción creadora de Dios, produciendo algo nuevo donde antes no existía materia.",
+    "explanation": "En las Escrituras, el ser humano jamás es sujeto de 'bará'. Solamente Dios 'crea' (bará) el cosmos (Génesis 1:1), la vida y un corazón limpio en el pecador arrepentido: 'Crea en mí, oh Dios, un corazón limpio' (Salmo 51:10).",
+    "keyVerses": [
+      "Génesis 1:1",
+      "Génesis 1:27",
+      "Salmos 51:10",
+      "Isaías 40:28",
+      "Isaías 65:17"
+    ]
+  },
+  {
+    "id": "term-qadosh",
+    "name": "Qadosh (Santo, Trascendente)",
+    "original": "קָדוֹשׁ",
+    "translit": "Qâdôwsh",
+    "strongId": "H6918",
+    "testament": "Antiguo Testamento",
+    "category": "Santidad Divina",
+    "shortSummary": "Completamente apartado de lo corrupto, puro en esencia y trascendente sobre toda la creación.",
+    "explanation": "La santidad de Dios es Su gloria esencial. En Isaías 6:3 los serafines proclaman el trisagio: 'Santo, Santo, Santo, Jehová de los ejércitos'. Dios llama a Su pueblo a reflejar Su naturaleza: 'Sed santos, porque yo soy santo' (Levítico 19:2; 1 Pedro 1:16).",
+    "keyVerses": [
+      "Levítico 11:44",
+      "Levítico 19:2",
+      "Isaías 6:3",
+      "Isaías 57:15",
+      "Habacuc 1:13"
+    ]
+  },
+  {
+    "id": "term-berit",
+    "name": "Berit (Pacto Solemne)",
+    "original": "בְּרִית",
+    "translit": "Bᵉrîyth",
+    "strongId": "H1285",
+    "testament": "Antiguo Testamento",
+    "category": "Pactos Bíblicos",
+    "shortSummary": "Compromiso sagrado jurado por Dios con garantías divinas de redención y comunión.",
+    "explanation": "La teología bíblica está cimentada sobre los pactos divinos: Adámico, Noé, Abrahámico, Mosaico, Davídico y el Nuevo Pacto prometido en Jeremías 31:31 y sellado por la sangre de Jesús (Lucas 22:20; Hebreos 8:6-13).",
+    "keyVerses": [
+      "Génesis 9:9-11",
+      "Génesis 15:18",
+      "Jeremías 31:31-34",
+      "Lucas 22:20",
+      "Hebreos 9:15"
+    ]
+  },
+  {
+    "id": "term-agape",
+    "name": "Ágape (Amor Sacrificial y Divino)",
+    "original": "ἀγάπη",
+    "translit": "Agápē",
+    "strongId": "G26",
+    "testament": "Nuevo Testamento",
+    "category": "Atributos Divinos y Ética",
+    "shortSummary": "El amor desinteresado que no depende del valor del receptor, sino que se entrega hasta la muerte.",
+    "explanation": "'De tal manera amó Dios al mundo...' (Juan 3:16). A diferencia de 'filia' (amistad) o 'eros' (pasión), 'ágape' es el amor divino que busca activamente el mayor bienestar eterno del otro a cualquier costo personal. Romanos 5:8 enseña: 'Mas Dios muestra su amor para con nosotros, en que siendo aún pecadores, Cristo murió por nosotros'.",
+    "keyVerses": [
+      "Juan 3:16",
+      "Romanos 5:8",
+      "1 Corintios 13:1-13",
+      "Gálatas 5:22",
+      "1 Juan 4:7-12"
+    ]
+  },
+  {
+    "id": "term-logos",
+    "name": "Logos (El Verbo / La Palabra Eterna)",
+    "original": "λόγος",
+    "translit": "Lógos",
+    "strongId": "G3056",
+    "testament": "Nuevo Testamento",
+    "category": "Cristología",
+    "shortSummary": "La suprema revelación personal de Dios encarnada: Jesucristo, por quien todo fue creado.",
+    "explanation": "En la filosofía griega era el principio ordenador del cosmos; en el pensamiento judío era la 'Dabar Yahweh' (la Palabra creadora del SEÑOR). El apóstol Juan las une majestuosamente en Juan 1:1-14: el Logos era en el principio con Dios, era Dios, y se hizo carne para habitar entre los hombres lleno de gracia y de verdad.",
+    "keyVerses": [
+      "Juan 1:1-3",
+      "Juan 1:14",
+      "Hebreos 4:12",
+      "1 Juan 1:1",
+      "Apocalipsis 19:13"
+    ]
+  },
+  {
+    "id": "term-pneuma",
+    "name": "Pneuma (El Espíritu Santo)",
+    "original": "πνεῦμα",
+    "translit": "Pneûma",
+    "strongId": "G4151",
+    "testament": "Nuevo Testamento",
+    "category": "Neumatología",
+    "shortSummary": "La tercera persona de la Trinidad: santificador, consolador, guía y dador de dones espirituales.",
+    "explanation": "El Espíritu Santo regenera al creyente (Tito 3:5), da testimonio de nuestra filiación divina (Romanos 8:16), produce Su fruto en nosotros (Gálatas 5:22-23) y unge con poder a la Iglesia para la misión y el testimonio fiel (Hechos 1:8).",
+    "keyVerses": [
+      "Mateo 28:19",
+      "Juan 14:16-17",
+      "Juan 16:13-14",
+      "Hechos 1:8",
+      "Romanos 8:9-11",
+      "Gálatas 5:22-25"
+    ]
+  },
+  {
+    "id": "term-pistis",
+    "name": "Pistis (Fe, Certeza y Fidelidad)",
+    "original": "πίστις",
+    "translit": "Pístis",
+    "strongId": "G4102",
+    "testament": "Nuevo Testamento",
+    "category": "Soteriología",
+    "shortSummary": "No es una simple emoción o pensamiento positivo: es entrega total, confianza incondicional y lealtad a Cristo.",
+    "explanation": "Hebreos 11:1 define la fe como 'la certeza de lo que se espera, la convicción de lo que no se ve'. La fe es el canal por el cual el ser humano se apropia de la gracia salvadora (Efesios 2:8-9). Sin fe es imposible agradar a Dios (Hebreos 11:6), y la fe verdadera se evidencia de modo activo a través de las obras de amor (Santiago 2:17).",
+    "keyVerses": [
+      "Habacuc 2:4",
+      "Romanos 1:17",
+      "Romanos 5:1",
+      "Efesios 2:8-9",
+      "Hebreos 11:1-6",
+      "Santiago 2:14-26"
+    ]
+  },
+  {
+    "id": "term-charis",
+    "name": "Charis (Gracia Inmerecida)",
+    "original": "χάρις",
+    "translit": "Cháris",
+    "strongId": "G5485",
+    "testament": "Nuevo Testamento",
+    "category": "Soteriología",
+    "shortSummary": "La dádiva y bondad inagotable de Dios hacia quienes merecían juicio, capacitándolos para vida santa.",
+    "explanation": "La gracia es el corazón del evangelio cristiano. No es una mera dispensa legal, sino el favor vivificante de Dios que salva al pecador independientemente de méritos humanos (Efesios 2:8-9) y le enseña a renunciar a la impiedad para vivir sobria y piadosamente (Tito 2:11-12).",
+    "keyVerses": [
+      "Juan 1:16-17",
+      "Romanos 3:24",
+      "Romanos 5:20-21",
+      "2 Corintios 12:9",
+      "Efesios 2:8-10",
+      "Tito 2:11-14"
+    ]
+  },
+  {
+    "id": "term-dikaiosyne",
+    "name": "Dikaiosýne (Justicia y Justificación)",
+    "original": "δικαιοσύνη",
+    "translit": "Dikaiosýnē",
+    "strongId": "G1343",
+    "testament": "Nuevo Testamento",
+    "category": "Soteriología",
+    "shortSummary": "La justicia de Dios imputada al creyente por medio de la fe en Jesucristo, libertándolo de condenación.",
+    "explanation": "El problema humano fundamental es que 'no hay justo, ni aun uno' (Romanos 3:10). La gloriosa solución del evangelio es que la perfecta justicia de Cristo nos es atribuida cuando creemos en Él (2 Corintios 5:21), siendo declarados justos delante del tribunal divino.",
+    "keyVerses": [
+      "Romanos 1:17",
+      "Romanos 3:21-26",
+      "Romanos 5:1-2",
+      "2 Corintios 5:21",
+      "Filipenses 3:9"
+    ]
+  },
+  {
+    "id": "term-koinonia",
+    "name": "Koinonía (Comunión y Participación Fraterna)",
+    "original": "κοινωνία",
+    "translit": "Koinōnía",
+    "strongId": "G2842",
+    "testament": "Nuevo Testamento",
+    "category": "Eclesiología",
+    "shortSummary": "Unión íntima, compartir mutuo de bienes espirituales y materiales entre hermanos en Cristo.",
+    "explanation": "Describe la vida en común de la Iglesia primitiva (Hechos 2:42). No es un compañerismo superficial, sino el lazo indisoluble forjado por participar todos de la vida del mismo Espíritu y del cuerpo de Cristo.",
+    "keyVerses": [
+      "Hechos 2:42",
+      "1 Corintios 10:16",
+      "2 Corintios 13:14",
+      "Filipenses 2:1-2",
+      "1 Juan 1:3-7"
+    ]
+  },
+  {
+    "id": "term-metanoia",
+    "name": "Metánoia (Arrepentimiento Transformador)",
+    "original": "μετάνοια",
+    "translit": "Metánoia",
+    "strongId": "G3341",
+    "testament": "Nuevo Testamento",
+    "category": "Soteriología y Vida Cristiana",
+    "shortSummary": "Cambio radical de mentalidad, rumbo y dirección: dar la espalda al pecado para correr hacia Dios.",
+    "explanation": "Literalmente significa 'cambio de mente' (meta = después/cambio; nous = mente). Es el primer llamado de Jesús en Su ministerio público: 'Arrepentíos [metanoeite], porque el reino de los cielos se ha acercado' (Mateo 4:17). Produce frutos dignos en una conducta renovada (Lucas 3:8).",
+    "keyVerses": [
+      "Mateo 3:8",
+      "Mateo 4:17",
+      "Lucas 15:7",
+      "Hechos 3:19",
+      "Hechos 17:30",
+      "2 Corintios 7:10"
+    ]
+  },
+  {
+    "id": "term-soteria",
+    "name": "Sotería (Salvación y Liberación Plena)",
+    "original": "σωτηρία",
+    "translit": "Sōtēría",
+    "strongId": "G4991",
+    "testament": "Nuevo Testamento",
+    "category": "Soteriología",
+    "shortSummary": "Rescate completo del creyente de la condenación, del poder del pecado y de la muerte eterna.",
+    "explanation": "Abarca tres tiempos en la vida del creyente: fuimos salvos de la culpa del pecado (justificación), estamos siendo salvos del dominio del pecado (santificación), y seremos salvos de la presencia del pecado (glorificación final).",
+    "keyVerses": [
+      "Lucas 19:9",
+      "Romanos 1:16",
+      "Efesios 1:13",
+      "Filipenses 2:12",
+      "1 Tesalonicenses 5:9",
+      "Hebreos 2:3"
+    ]
+  },
+  {
+    "id": "term-eirene",
+    "name": "Eiréne (Paz con Dios)",
+    "original": "εἰρήνη",
+    "translit": "Eirḗnē",
+    "strongId": "G1515",
+    "testament": "Nuevo Testamento",
+    "category": "Vida Cristiana",
+    "shortSummary": "Reconciliación y sosiego del alma obtenida por la cruz de nuestro Señor Jesucristo.",
+    "explanation": "Traducción griega del 'Shalom' hebreo. 'Justificados, pues, por la fe, tenemos paz para con Dios por medio de nuestro Señor Jesucristo' (Romanos 5:1). Filipenses 4:7 promete la paz que 'sobrepasa todo entendimiento, guardará vuestros corazones y vuestros pensamientos en Cristo Jesús'.",
+    "keyVerses": [
+      "Juan 14:27",
+      "Romanos 5:1",
+      "Romanos 8:6",
+      "Efesios 2:14-17",
+      "Filipenses 4:7",
+      "Colosenses 3:15"
+    ]
+  }
+]

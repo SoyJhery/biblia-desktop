@@ -1,6 +1,6 @@
 {
   "name": "biblia-desktop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Aplicación de estudio bíblico multiplataforma (Windows y Linux) con Reina-Valera 1960, modo oscuro, favoritos, marcadores y colecciones temáticas.",
   "author": "SoyJhery <soyjhery@gmail.com>",

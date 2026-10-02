@@ -108,3 +108,41 @@ export interface StudyNote {
   updatedAt: string;
 }
 
+export type StrongLanguage = 'hebrew' | 'greek';
+
+export interface StrongEntry {
+  id: string; // e.g. "H7965" o "G3056"
+  num: number;
+  lang: StrongLanguage;
+  lemma: string; // Vocablo original en alfabeto hebreo o griego
+  translit: string; // Transliteración fonética
+  pron?: string; // Guía de pronunciación fonética
+  deriv: string; // Etimología y raíz léxica
+  def: string; // Definición Strong
+  kjv?: string; // Ocurrencias / traducciones comunes
+  esGloss?: string; // Glosa / definición en español
+  category?: string; // Categoría doctrinal / temática
+}
+
+export interface CrossReferenceItem {
+  targetBookId: number;
+  targetBookName: string;
+  targetChapter: number;
+  targetVerse: number;
+  targetReference: string;
+  verseText?: string;
+}
+
+export interface TheologicalTerm {
+  id: string;
+  name: string;
+  original: string;
+  translit: string;
+  strongId: string;
+  testament: Testament;
+  category: string;
+  shortSummary: string;
+  explanation: string;
+  keyVerses: string[];
+}
+

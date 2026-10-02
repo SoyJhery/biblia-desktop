@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles, FileText } from 'lucide-react';
+import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles, FileText, Languages } from 'lucide-react';
 import { HighlightColor } from '../types';
 
 interface VerseActionBarProps {
@@ -13,6 +13,7 @@ interface VerseActionBarProps {
   onAddToCollection: () => void;
   onOpenCardStudio: () => void;
   onSendToNotebook?: () => void;
+  onOpenLexicon?: () => void;
   onBookmark: () => void;
   onCopy: () => void;
 }
@@ -151,6 +152,18 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
           >
             <FileText className="w-3.5 h-3.5 text-emerald-400" />
             <span className="hidden sm:inline">A Nota</span>
+          </button>
+        )}
+
+        {/* Referencias Cruzadas & Léxico Strong */}
+        {onOpenLexicon && (
+          <button
+            onClick={onOpenLexicon}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-semibold transition-all border border-indigo-500/30 shadow-xs"
+            title="Ver referencias cruzadas bíblicas (TSK) y léxico Strong"
+          >
+            <Languages className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="hidden sm:inline">Referencias</span>
           </button>
         )}
 

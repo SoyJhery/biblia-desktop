@@ -37,6 +37,13 @@ Proporcionar una experiencia integral, 100% offline, altamente estética y sin d
 - **Modo Púlpito:** Vista limpia, sin barras de herramientas ni distracciones, con tipografía editorial ampliada para predicar con seguridad desde el atril.
 - **Exportación:** Copiado directo con formato, exportación en Markdown (`.md`) y soporte para impresión o guardado a PDF (`Ctrl+P`).
 
+### 🔬 Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas (v0.4.0)
+- **Base de datos léxica 100% offline:** 14,197 vocablos (8,674 en hebreo/arameo H1-H8674 y 5,523 en griego koiné G1-G5624).
+- **Exégesis profunda:** Vocablo original con caracteres hebreos/griegos, transliteración fonética, pronunciación, glosa doctrinal en español, etimología, raíz y concordancia de ocurrencias bíblicas.
+- **Referencias Cruzadas TSK (Treasury of Scripture Knowledge):** 386,905 conexiones bíblicas entre profecías, cumplimiento y ecos paralelos con previsualización del texto sagrado y navegación instantánea.
+- **Glosario de Términos Teológicos Fundamentales:** Estudio interactivo de las palabras maestras de la revelación (Shalom, Hesed, Ruaj, Elohim, YHWH, Bará, Ágape, Logos, Pneuma, Pistis, Charis, Koinonía, etc.).
+- **Atajo global:** Abre la concordancia y el buscador léxico en cualquier momento con `Ctrl+L`.
+
 ---
 
 ## 3. 🗺️ Roadmap de Mejoras (Visión de Futuro)
@@ -48,8 +55,8 @@ Este proyecto sigue una visión escalonada de desarrollo continuo, priorizando l
 | **Fase 1** | `v0.1.0` | ✅ **Completado** | **Núcleo Canónico & Motor de Lectura:** 66 libros offline, SQLite/JSON, temas claro/sepia/oscuro, favoritos, marcadores, colecciones temáticas, soporte Windows (`.exe`) y Linux. |
 | **Fase 2** | `v0.2.0` | ✅ **Completado** | **Verse Card Studio HD:** Creador de postales en 1:1 y 9:16 con paletas prémium, descarga PNG y portapapeles. |
 | **Fase 3** | `v0.3.0` | ✅ **Completado** | **Cuaderno Homilético & Modo Púlpito:** Pantalla dividida, editor visual WYSIWYG, inserción de tarjetas bíblicas en bloque, tags y vista de atril. |
-| **Fase 4** | `v0.4.0` | 🚀 **En Desarrollo** | **Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas:** Enlaces de números Strong a léxicos hebreo/griego palabra por palabra, explorador etimológico y panel de pasajes paralelos interconectados. |
-| **Fase 5** | `v0.5.0` | 📋 **Planificado** | **Mapas Cartográficos & Cronología Interactiva:** Mapas históricos interactivos de las tierras bíblicas (rutas del Éxodo, viajes de Pablo) y línea de tiempo bíblica desde la Creación hasta el Apocalipsis. |
+| **Fase 4** | `v0.4.0` | ✅ **Completado** | **Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas:** 14,197 vocablos léxicos Strong, 386,905 referencias cruzadas TSK con vista previa, glosario teológico y buscador etimológico (`Ctrl+L`). |
+| **Fase 5** | `v0.5.0` | 🚀 **En Desarrollo** | **Mapas Cartográficos & Cronología Interactiva:** Mapas históricos interactivos de las tierras bíblicas (rutas del Éxodo, viajes de Pablo) y línea de tiempo bíblica desde la Creación hasta el Apocalipsis. |
 | **Fase 6** | `v0.6.0` | 📋 **Planificado** | **Sincronización Segura Local-First / P2P:** Respaldos automáticos cifrados de usuario a usuario o nube privada sin intermediarios para mantener sermones y notas a salvo entre equipos. |
 
 > *Nota: Por solicitud del autor, las funcionalidades de audio y sintetizador de voz (TTS) quedan explícitamente excluidas del alcance del proyecto, enfocándose en la excelencia visual, tipográfica y de estudio profundo.*

@@ -15,8 +15,8 @@ Este documento describe la visión de producto, los hitos alcanzados y las etapa
 flowchart LR
     A["v0.1.0 Núcleo Bíblico ✅"] --> B["v0.2.0 Verse Card Studio ✅"]
     B --> C["v0.3.0 Cuaderno & Púlpito ✅"]
-    C --> D["v0.4.0 Concordancia Strong 🚀"]
-    D --> E["v0.5.0 Mapas & Cronología 📋"]
+    C --> D["v0.4.0 Concordancia Strong ✅"]
+    D --> E["v0.5.0 Mapas & Cronología 🚀"]
     E --> F["v0.6.0 Sync Cifrada P2P 📋"]
 ```
 
@@ -57,18 +57,19 @@ flowchart LR
 
 ---
 
-## 🚀 Fase 4 — Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas (`v0.4.0`)
-*Estado: En Desarrollo.*
+## ✅ Fase 4 — Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas (`v0.4.0`)
+*Estado: Completado y publicado.*
 
-- [ ] **Diccionario y números Strong integrados:** Base de datos léxica completa offline para el Antiguo Testamento (hebreo y arameo H1-H8674) y Nuevo Testamento (griego koine G1-G5624).
-- [ ] **Panel de Estudio Léxico Interactivo:** Al hacer clic o posar el cursor sobre palabras y términos clave, desplegar el vocablo original, transliteración fonética, significado raíz, etimología y concordancia de ocurrencias en la Biblia.
-- [ ] **Referencias Cruzadas Temáticas (Treasury of Scripture Knowledge):** Más de 500,000 conexiones bíblicas entre profecías, cumplimiento, ecos del Antiguo Testamento en las Epístolas y pasajes paralelos accesibles desde el lector.
-- [ ] **Buscador de Raíces y Concordancia Exhaustiva:** Buscar rápidamente todos los versículos donde se utiliza una raíz hebrea o griega específica.
+- [x] **Diccionario y números Strong integrados:** Base de datos léxica completa offline para el Antiguo Testamento (hebreo y arameo H1-H8674) y Nuevo Testamento (griego koine G1-G5624) con 14,197 vocablos.
+- [x] **Panel de Estudio Léxico Interactivo:** Vocablo original en alfabeto hebreo/griego, transliteración fonética, pronunciación, glosa teológica en español, etimología, raíz y concordancia de ocurrencias bíblicas.
+- [x] **Referencias Cruzadas Temáticas (Treasury of Scripture Knowledge - TSK):** 386,905 conexiones bíblicas entre profecías, cumplimiento y ecos paralelos con previsualización del texto sagrado y navegación instantánea.
+- [x] **Buscador de Raíces y Concordancia Exhaustiva:** Búsqueda rápida por número Strong (`H...`, `G...`), raíz o término en español, con atajo directo de teclado (`Ctrl+L`).
+- [x] **Glosario de Términos Teológicos Fundamentales:** Estudio doctrinal profundo de los grandes conceptos de la fe (Shalom, Hesed, Ruaj, Elohim, YHWH, Bará, Ágape, Logos, Pneuma, Pistis, Charis, Koinonía, etc.).
 
 ---
 
-## 📋 Fase 5 — Mapas Cartográficos & Cronología Bíblica (`v0.5.0`)
-*Estado: Planificado.*
+## 🚀 Fase 5 — Mapas Cartográficos & Cronología Bíblica (`v0.5.0`)
+*Estado: Siguiente Hito en Desarrollo.*
 
 - [ ] **Atlas Bíblico Interactivo:** Mapas vectoriales de alta definición de la Geografía Bíblica:
   - Rutas de los Patriarcas (Abraham, Isaac, Jacob).

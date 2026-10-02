@@ -11,7 +11,8 @@ import {
   Sun, 
   Moon, 
   Coffee,
-  FileText
+  FileText,
+  Languages
 } from 'lucide-react';
 import { Book, ThemeMode } from '../types';
 
@@ -24,6 +25,7 @@ interface HeaderProps {
   canPrev: boolean;
   canNext: boolean;
   onOpenSearch: () => void;
+  onOpenLexicon: () => void;
   onOpenCollections: () => void;
   onOpenBookmarks: () => void;
   onOpenFavorites: () => void;
@@ -47,6 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
   canPrev,
   canNext,
   onOpenSearch,
+  onOpenLexicon,
   onOpenCollections,
   onOpenBookmarks,
   onOpenFavorites,
@@ -116,6 +119,16 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Search className="w-4 h-4 text-stone-500" />
           <span className="hidden md:inline">Buscar</span>
+        </button>
+
+        {/* Strong Lexicon & Concordance */}
+        <button
+          onClick={onOpenLexicon}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium transition-colors"
+          title="Concordancia Strong, Léxico Hebreo/Griego y Referencias Cruzadas (Ctrl+L)"
+        >
+          <Languages className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+          <span className="hidden lg:inline">Léxico / Strong</span>
         </button>
 
         {/* Collections / Groups */}
