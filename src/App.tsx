@@ -429,9 +429,9 @@ export const App: React.FC = () => {
   }, []);
 
   const handleCreateNote = useCallback((title?: string, initialVerses?: LinkedVerse[], initialSnippet?: string, initialRef?: string) => {
-    let initialHtml = `<h1>${title || 'Nuevo Bosquejo de Estudio'}</h1><p><br></p>`;
+    let initialHtml = '<p><br></p>';
     if (initialSnippet && initialRef) {
-      initialHtml += `
+      initialHtml = `
         <div class="verse-box" contenteditable="false">
           <div class="verse-text">“${initialSnippet}”</div>
           <div class="verse-ref">📖 ${initialRef} — Reina-Valera 1960</div>
@@ -440,9 +440,11 @@ export const App: React.FC = () => {
       `;
     }
 
+    const noteTitle = title || 'Nuevo Bosquejo de Estudio';
+
     const newNote: StudyNote = {
       id: `note-${Date.now()}`,
-      title: title || 'Nuevo Bosquejo de Estudio',
+      title: noteTitle,
       content: initialHtml,
       tags: ['Estudio'],
       linkedVerses: initialVerses || [],

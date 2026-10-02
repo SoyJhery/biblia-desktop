@@ -57,6 +57,47 @@ function processInline(text: string): string {
 }
 
 /**
+ * Limpia y normaliza el contenido HTML de la nota:
+ * 1. Rescata y desenclava cualquier tarjeta bíblica (.verse-box) si quedó accidentalmente dentro de un <h1>, <h2> o <h3>.
+ * 2. Elimina cualquier encabezado <h1> o <h2> al inicio del contenido que duplique el título del bosquejo,
+ *    ya que el título se gestiona en la cabecera principal y en la portada del púlpito.
+ */
+export function cleanHtmlContent(content: string, noteTitle?: string): string {
+  if (!content) return '<p><br></p>';
+  let cleaned = content;
+
+  // 1. Extraer <div class="verse-box">...</div> si accidentalmente quedó atrapada dentro de un <h1-h6>
+  cleaned = cleaned.replace(/<h([1-6])>([\s\S]*?)<div class="verse-box"([\s\S]*?)<\/div>([\s\S]*?)<\/h\1>/gi, (_m, hLevel, before, boxContent, after) => {
+    const parts: string[] = [];
+    const cleanBefore = before.replace(/<[^>]+>/g, '').trim();
+    const cleanAfter = after.replace(/<[^>]+>/g, '').trim();
+
+    if (cleanBefore && (!noteTitle || cleanBefore.toLowerCase() !== noteTitle.toLowerCase())) {
+      parts.push(`<h${hLevel}>${cleanBefore}</h${hLevel}>`);
+    }
+    parts.push(`<div class="verse-box"${boxContent}</div><p><br></p>`);
+    if (cleanAfter && (!noteTitle || cleanAfter.toLowerCase() !== noteTitle.toLowerCase())) {
+      parts.push(`<h${hLevel}>${cleanAfter}</h${hLevel}>`);
+    }
+    return parts.join('\n');
+  });
+
+  // 2. Si el contenido tiene <h1> o <h2> con exactamente el título de la nota al inicio, removerlo
+  if (noteTitle && noteTitle.trim()) {
+    const escaped = noteTitle.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const titleRegex = new RegExp(`^\\s*<h[1-2]>\\s*${escaped}\\s*<\\/h[1-2]>\\s*(<p><br\\/?><\\/p>)?`, 'i');
+    cleaned = cleaned.replace(titleRegex, '');
+    const mdTitleRegex = new RegExp(`^\\s*#{1,2}\\s*${escaped}\\s*(\n|$)`, 'i');
+    cleaned = cleaned.replace(mdTitleRegex, '');
+  }
+
+  // 3. Limpiar párrafos vacíos redundantes al inicio
+  cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/, '');
+
+  return cleaned.trim() || '<p><br></p>';
+}
+
+/**
  * Convierte notas en formato markdown o mixto a HTML enriquecido visual
  * de forma robusta para que nunca se rompan los estilos ni se muestren símbolos crudos.
  */
@@ -225,12 +266,13 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   useEffect(() => {
     if (activeNote) {
       setLocalTitle(activeNote.title || '');
-      // Si cambiamos de nota, cargar el contenido
+      // Si cambiamos de nota, cargar el contenido limpio
       if (currentNoteIdRef.current !== activeNote.id) {
         currentNoteIdRef.current = activeNote.id;
-        lastContentRef.current = activeNote.content || '';
+        const cleaned = cleanHtmlContent(activeNote.content || '', activeNote.title);
+        lastContentRef.current = cleaned;
         if (editorRef.current) {
-          editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
+          editorRef.current.innerHTML = ensureHtmlContent(cleaned);
         }
       }
     } else {
@@ -247,10 +289,11 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   useEffect(() => {
     if (!activeNote) return;
     if (activeNote.content !== lastContentRef.current) {
+      const cleaned = cleanHtmlContent(activeNote.content || '', activeNote.title);
       lastContentRef.current = activeNote.content;
       // Solo actualizar el DOM si el usuario no tiene el cursor activo escribiendo dentro
       if (editorRef.current && document.activeElement !== editorRef.current) {
-        editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
+        editorRef.current.innerHTML = ensureHtmlContent(cleaned);
       }
     }
   }, [activeNote?.content]);
@@ -268,7 +311,8 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     } else if (newMode === 'edit') {
       setTimeout(() => {
         if (editorRef.current && activeNote) {
-          editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
+          const cleaned = cleanHtmlContent(activeNote.content || '', activeNote.title);
+          editorRef.current.innerHTML = ensureHtmlContent(cleaned);
         }
       }, 30);
     }
@@ -364,20 +408,46 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     handleEditorInput();
   };
 
-  // Insertar HTML en la posición del cursor de manera limpia
-  const insertHtmlAtCursor = (htmlToInsert: string) => {
-    editorRef.current?.focus();
+  // Insertar un bloque HTML (como una tarjeta bíblica) de manera limpia y sin corromper etiquetas H1/H2
+  const insertVerseBlock = (htmlToInsert: string) => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+
     const sel = window.getSelection();
-    if (!sel || !sel.rangeCount) {
-      if (editorRef.current) {
-        editorRef.current.innerHTML += htmlToInsert;
-        handleEditorInput();
-      }
+    const isInside = sel && sel.rangeCount > 0 && editorRef.current.contains(sel.getRangeAt(0).commonAncestorContainer);
+
+    if (!isInside) {
+      // Si el cursor no estaba dentro del editor, anexar al final de forma segura
+      editorRef.current.insertAdjacentHTML('beforeend', htmlToInsert);
+      handleEditorInput();
       return;
     }
-    const range = sel.getRangeAt(0);
-    range.deleteContents();
 
+    const range = sel.getRangeAt(0);
+    let blockParent: Node | null = range.commonAncestorContainer;
+    if (blockParent.nodeType === Node.TEXT_NODE) {
+      blockParent = blockParent.parentElement;
+    }
+
+    // Si el cursor está dentro de un encabezado o de otra verse-box, insertar justo DESPUÉS del bloque contenedor
+    const containerBlock = (blockParent as HTMLElement)?.closest?.('h1, h2, h3, h4, h5, h6, .verse-box');
+    if (containerBlock && editorRef.current.contains(containerBlock)) {
+      containerBlock.insertAdjacentHTML('afterend', htmlToInsert);
+      handleEditorInput();
+      return;
+    }
+
+    // Si el cursor está en un párrafo vacío (<p><br></p>), reemplazarlo
+    const pBlock = (blockParent as HTMLElement)?.closest?.('p');
+    if (pBlock && editorRef.current.contains(pBlock) && (!pBlock.textContent || !pBlock.textContent.trim())) {
+      pBlock.insertAdjacentHTML('beforebegin', htmlToInsert);
+      pBlock.remove();
+      handleEditorInput();
+      return;
+    }
+
+    // En cualquier otro caso, insertar en la posición del cursor
+    range.deleteContents();
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlToInsert;
     const frag = document.createDocumentFragment();
@@ -423,7 +493,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
     // Tarjeta visual editorial del pasaje (sin símbolos de código ni markdown)
     const visualScriptureHtml = `
-      <div class="verse-box">
+      <div class="verse-box" contenteditable="false">
         <div class="verse-text">“${snippet}”</div>
         <div class="verse-ref">📖 ${refText} — Reina-Valera 1960</div>
       </div>
@@ -454,7 +524,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
     // Si estamos en modo púlpito o editorRef no está montado, añadir al contenido visual directamente
     if (viewMode === 'pulpit' || !editorRef.current) {
-      const currentHtml = ensureHtmlContent(activeNote.content || '');
+      const currentHtml = ensureHtmlContent(cleanHtmlContent(activeNote.content || '', activeNote.title));
       const newContent = currentHtml + '\n' + visualScriptureHtml;
       lastContentRef.current = newContent;
       onUpdateNote({
@@ -464,8 +534,8 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
         updatedAt: new Date().toISOString(),
       });
     } else {
-      // Modo edición activo: insertar en el cursor
-      insertHtmlAtCursor(visualScriptureHtml);
+      // Modo edición activo: insertar en el cursor de forma segura
+      insertVerseBlock(visualScriptureHtml);
       const newContent = editorRef.current.innerHTML;
       lastContentRef.current = newContent;
       onUpdateNote({
@@ -811,80 +881,82 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                 </div>
               </div>
 
-              {/* Etiquetas y Pasajes */}
-              <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                {activeNote.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-medium"
-                  >
-                    #{t}
-                    <button
-                      onClick={() => handleRemoveTag(t)}
-                      className="hover:text-red-500 text-stone-400 transition-colors"
+              {/* Etiquetas y Pasajes (Solo en Modo Edición) */}
+              {viewMode === 'edit' && (
+                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                  {activeNote.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-medium"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
+                      #{t}
+                      <button
+                        onClick={() => handleRemoveTag(t)}
+                        className="hover:text-red-500 text-stone-400 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
 
-                {isAddingTag ? (
-                  <div className="inline-flex items-center gap-1">
-                    <input
-                      type="text"
-                      value={newTagInput}
-                      onChange={(e) => setNewTagInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                      placeholder="Etiqueta..."
-                      className="px-2 py-0.5 text-[11px] rounded-md border border-emerald-500 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none w-24"
-                      autoFocus
-                    />
+                  {isAddingTag ? (
+                    <div className="inline-flex items-center gap-1">
+                      <input
+                        type="text"
+                        value={newTagInput}
+                        onChange={(e) => setNewTagInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
+                        placeholder="Etiqueta..."
+                        className="px-2 py-0.5 text-[11px] rounded-md border border-emerald-500 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none w-24"
+                        autoFocus
+                      />
+                      <button
+                        onClick={handleAddTag}
+                        className="text-emerald-600 hover:text-emerald-700 text-[11px] font-semibold"
+                      >
+                        Ok
+                      </button>
+                      <button
+                        onClick={() => setIsAddingTag(false)}
+                        className="text-stone-400 hover:text-stone-600 text-[11px]"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
                     <button
-                      onClick={handleAddTag}
-                      className="text-emerald-600 hover:text-emerald-700 text-[11px] font-semibold"
+                      onClick={() => setIsAddingTag(true)}
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 text-[11px]"
                     >
-                      Ok
+                      <Plus className="w-3 h-3" /> Etiqueta
                     </button>
-                    <button
-                      onClick={() => setIsAddingTag(false)}
-                      className="text-stone-400 hover:text-stone-600 text-[11px]"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
+                  )}
+
+                  <div className="h-3 w-[1px] bg-stone-300 dark:bg-stone-700 mx-1" />
+
+                  {/* Botón para insertar la tarjeta bíblica visual */}
                   <button
-                    onClick={() => setIsAddingTag(true)}
-                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 text-[11px]"
+                    onClick={handleInsertCurrentPassage}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 text-xs font-semibold transition-all border border-amber-500/30 shadow-xs"
+                    title="Inserta una tarjeta visual estilizada con el pasaje bíblico seleccionado en la posición del cursor"
                   >
-                    <Plus className="w-3 h-3" /> Etiqueta
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>+ Insertar Versículo</span>
                   </button>
-                )}
 
-                <div className="h-3 w-[1px] bg-stone-300 dark:bg-stone-700 mx-1" />
-
-                {/* Botón para insertar la tarjeta bíblica visual */}
-                <button
-                  onClick={handleInsertCurrentPassage}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 text-xs font-semibold transition-all border border-amber-500/30 shadow-xs"
-                  title="Inserta una tarjeta visual estilizada con el pasaje bíblico seleccionado en la posición del cursor"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>+ Insertar Versículo</span>
-                </button>
-
-                <button
-                  onClick={handleLinkCurrentVerse}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 text-[11px] transition-colors"
-                  title="Vincular el pasaje actual a las referencias de esta nota sin escribir en el texto"
-                >
-                  <Link2 className="w-3 h-3" />
-                  <span>Vincular</span>
-                </button>
-              </div>
+                  <button
+                    onClick={handleLinkCurrentVerse}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 text-[11px] transition-colors"
+                    title="Vincular el pasaje actual a las referencias de esta nota sin escribir en el texto"
+                  >
+                    <Link2 className="w-3 h-3" />
+                    <span>Vincular</span>
+                  </button>
+                </div>
+              )}
 
               {/* Badges de Versículos Vinculados */}
-              {activeNote.linkedVerses.length > 0 && (
+              {viewMode === 'edit' && activeNote.linkedVerses.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200/60 dark:border-stone-800/60">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
                     Pasajes Vinculados:
@@ -1056,7 +1128,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
                   <div
                     className="study-editor max-w-none font-serif select-text text-lg sm:text-xl leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: ensureHtmlContent(activeNote.content) }}
+                    dangerouslySetInnerHTML={{ __html: ensureHtmlContent(cleanHtmlContent(activeNote.content, activeNote.title)) }}
                   />
                 </div>
               )}
