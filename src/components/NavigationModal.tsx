@@ -166,23 +166,23 @@ export const NavigationModal: React.FC<NavigationModalProps> = ({
                       setSelectedBook(book);
                       setStep('chapters');
                     }}
-                    className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all group ${
+                    className={`flex flex-col items-start p-3.5 rounded-xl border text-left transition-all duration-150 group cursor-pointer ${
                       isCurrent
-                        ? 'border-amber-500/80 bg-amber-500/10 dark:bg-amber-500/15 ring-1 ring-amber-500/30'
-                        : 'border-stone-200 dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-600 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800/80'
+                        ? 'border-amber-500 bg-amber-500/15 dark:bg-amber-500/20 ring-1 ring-amber-500/40 text-amber-700 dark:text-amber-400 shadow-sm'
+                        : 'border-stone-200 dark:border-stone-800 bg-stone-50/80 hover:bg-amber-50/60 dark:bg-stone-800/60 dark:hover:bg-stone-800 hover:border-amber-400/80 dark:hover:border-amber-500/50 shadow-xs'
                     }`}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-semibold text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      <span className="font-semibold text-sm text-stone-800 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                         {book.name}
                       </span>
-                      <span className="text-[10px] uppercase font-bold text-stone-400 dark:text-stone-500 px-1 py-0.5 rounded bg-stone-100 dark:bg-stone-800">
+                      <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 px-1.5 py-0.5 rounded bg-stone-200/70 dark:bg-stone-700/60 border border-stone-200 dark:border-stone-700">
                         {book.abbrev}
                       </span>
                     </div>
                     <div className="flex items-center justify-between w-full mt-2 text-[11px] text-stone-500 dark:text-stone-400">
                       <span>{book.chaptersCount} caps.</span>
-                      <span className="text-[10px] text-stone-400 truncate max-w-[90px]">{book.category}</span>
+                      <span className="text-[10px] text-stone-400 dark:text-stone-500 truncate max-w-[95px]">{book.category}</span>
                     </div>
                   </button>
                 );
