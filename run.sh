@@ -23,5 +23,6 @@ if [ ! -d "dist" ] || [ ! -d "dist-electron" ]; then
   npm run build
 fi
 
-# Iniciar aplicación con Electron
-npx electron .
+# Establecer entorno de producción y ejecutar
+export NODE_ENV=production
+exec npx electron . "$@"

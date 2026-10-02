@@ -4,7 +4,7 @@ import fs from 'fs';
 
 let mainWindow: BrowserWindow | null = null;
 
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+const isDev = process.env.NODE_ENV === 'development';
 
 function getUserDataFilePath(): string {
   const userDir = app.getPath('userData');
@@ -35,12 +35,15 @@ function createWindow() {
     mainWindow?.show();
   });
 
+  const distHtmlPath = path.join(__dirname, '../dist/index.html');
+
   if (isDev) {
-    mainWindow.loadURL('http://127.0.0.1:5173');
-    // Open devtools in development if needed
-    // mainWindow.webContents.openDevTools();
+    mainWindow.loadURL('http://127.0.0.1:5173').catch(() => {
+      console.log('Servidor Vite no disponible, cargando paquete dist/index.html...');
+      mainWindow?.loadFile(distHtmlPath);
+    });
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(distHtmlPath);
   }
 
   mainWindow.on('closed', () => {

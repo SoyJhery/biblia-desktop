@@ -38,3 +38,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 - **Compilación y empaquetado multiplataforma:**
   - Generación de instalador para Windows (`.exe` NSIS y versión portable).
   - Compatible y ejecutable nativamente en sistemas Linux.
+
+### Fixed
+- Corrección en resolución de entorno en `run.sh` fijando `NODE_ENV=production` y mecanismo de respaldo a `dist/index.html` en el proceso principal de Electron ante ausencia de servidor de desarrollo.
+
