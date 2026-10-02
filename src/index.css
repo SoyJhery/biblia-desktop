@@ -224,3 +224,38 @@
   color: #fbbf24;
 }
 
+/* Pulpit Mode Scripture Card Enhancements */
+.pulpit-view .verse-box {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-left: 5px solid #f59e0b;
+  background-color: rgba(245, 158, 11, 0.09);
+  padding: 1.15rem 1.4rem;
+  margin: 1.25rem 0;
+  border-radius: 0.75rem;
+}
+
+.dark .pulpit-view .verse-box {
+  background-color: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.pulpit-view .verse-box .verse-text {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.pulpit-view .verse-box .verse-ref {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #d97706;
+  margin-top: 0.5rem;
+}
+
+.dark .pulpit-view .verse-box .verse-ref {
+  color: #fbbf24;
+}
+
+

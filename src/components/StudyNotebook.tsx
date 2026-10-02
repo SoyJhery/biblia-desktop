@@ -50,46 +50,58 @@ interface StudyNotebookProps {
   currentChapterVerses: { verse: number; text: string }[];
 }
 
-/**
- * Convierte notas antiguas en formato markdown a HTML enriquecido visual
- * para que los usuarios vean tipografía hermosa sin símbolos como # o **.
- */
-function markdownToHtml(md: string): string {
-  if (!md) return '<p><br></p>';
-  if (/<(p|h1|h2|h3|blockquote|ul|ol|li|div|strong|em|u|br)/i.test(md)) {
-    return md;
-  }
+function processInline(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
 
-  const lines = md.split('\n');
+/**
+ * Convierte notas en formato markdown o mixto a HTML enriquecido visual
+ * de forma robusta para que nunca se rompan los estilos ni se muestren símbolos crudos.
+ */
+export function ensureHtmlContent(content: string): string {
+  if (!content) return '<p><br></p>';
+
+  const lines = content.split('\n');
   const result: string[] = [];
   let inUl = false;
   let inOl = false;
 
-  for (let line of lines) {
-    const trimmed = line.trimEnd();
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
+    // Si ya es un bloque HTML (como verse-box, blockquote, hr, p, h1-h6, div, ul, ol), pasarlo intacto
+    if (/^<(div|blockquote|p|h[1-6]|ul|ol|li|hr)/i.test(trimmed) || /<\/(div|blockquote|p|h[1-6]|ul|ol|li)>/i.test(trimmed)) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push(rawLine);
+      continue;
+    }
 
     if (trimmed.startsWith('# ')) {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
-      result.push(`<h1>${trimmed.slice(2)}</h1>`);
+      result.push(`<h1>${processInline(trimmed.slice(2))}</h1>`);
       continue;
     }
     if (trimmed.startsWith('## ')) {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
-      result.push(`<h2>${trimmed.slice(3)}</h2>`);
+      result.push(`<h2>${processInline(trimmed.slice(3))}</h2>`);
       continue;
     }
     if (trimmed.startsWith('### ')) {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
-      result.push(`<h3>${trimmed.slice(4)}</h3>`);
+      result.push(`<h3>${processInline(trimmed.slice(4))}</h3>`);
       continue;
     }
     if (trimmed.startsWith('> ')) {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
-      result.push(`<blockquote>${trimmed.slice(2)}</blockquote>`);
+      result.push(`<blockquote>${processInline(trimmed.slice(2))}</blockquote>`);
       continue;
     }
     if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
@@ -98,9 +110,9 @@ function markdownToHtml(md: string): string {
         result.push('<ul>');
         inUl = true;
       }
-      result.push(`<li>${trimmed.slice(2)}</li>`);
+      result.push(`<li>${processInline(trimmed.slice(2))}</li>`);
       continue;
-    } else if (inUl) {
+    } else if (inUl && !trimmed.startsWith('- ') && !trimmed.startsWith('* ')) {
       result.push('</ul>');
       inUl = false;
     }
@@ -111,37 +123,35 @@ function markdownToHtml(md: string): string {
         result.push('<ol>');
         inOl = true;
       }
-      result.push(`<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`);
+      result.push(`<li>${processInline(trimmed.replace(/^\d+\.\s/, ''))}</li>`);
       continue;
-    } else if (inOl) {
+    } else if (inOl && !/^\d+\.\s/.test(trimmed)) {
       result.push('</ol>');
       inOl = false;
     }
 
-    if (trimmed.trim() === '---') {
+    if (trimmed === '---') {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
       result.push('<hr>');
       continue;
     }
 
-    if (!trimmed.trim()) {
+    if (!trimmed) {
       if (inUl) { result.push('</ul>'); inUl = false; }
       if (inOl) { result.push('</ol>'); inOl = false; }
       result.push('<p><br></p>');
       continue;
     }
 
-    let processed = trimmed
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>');
-    result.push(`<p>${processed}</p>`);
+    // Párrafo de texto común
+    result.push(`<p>${processInline(trimmed)}</p>`);
   }
 
   if (inUl) result.push('</ul>');
   if (inOl) result.push('</ol>');
 
-  return result.join('');
+  return result.join('\n');
 }
 
 /**
@@ -204,6 +214,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   const editorRef = useRef<HTMLDivElement>(null);
   const saveTimeoutRef = useRef<any>(null);
   const currentNoteIdRef = useRef<string | null>(null);
+  const lastContentRef = useRef<string>(activeNote?.content || '');
 
   // Active Note
   const activeNote = useMemo(() => {
@@ -214,21 +225,56 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   useEffect(() => {
     if (activeNote) {
       setLocalTitle(activeNote.title || '');
-      // Solo recargar innerHTML si cambiamos de nota (evita reiniciar el cursor mientras se escribe)
+      // Si cambiamos de nota, cargar el contenido
       if (currentNoteIdRef.current !== activeNote.id) {
         currentNoteIdRef.current = activeNote.id;
+        lastContentRef.current = activeNote.content || '';
         if (editorRef.current) {
-          editorRef.current.innerHTML = markdownToHtml(activeNote.content || '');
+          editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
         }
       }
     } else {
       currentNoteIdRef.current = null;
+      lastContentRef.current = '';
       setLocalTitle('');
       if (editorRef.current) {
         editorRef.current.innerHTML = '';
       }
     }
   }, [activeNote?.id]);
+
+  // Si activeNote.content cambia externamente (ej: al insertar un versículo desde el lector bíblico o en modo púlpito)
+  useEffect(() => {
+    if (!activeNote) return;
+    if (activeNote.content !== lastContentRef.current) {
+      lastContentRef.current = activeNote.content;
+      // Solo actualizar el DOM si el usuario no tiene el cursor activo escribiendo dentro
+      if (editorRef.current && document.activeElement !== editorRef.current) {
+        editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
+      }
+    }
+  }, [activeNote?.content]);
+
+  // Manejar cambio suave entre modo Edición y modo Púlpito sin perder versículos ni cambios
+  const handleSwitchViewMode = (newMode: 'edit' | 'pulpit') => {
+    if (newMode === viewMode) return;
+
+    if (viewMode === 'edit') {
+      if (editorRef.current && activeNote) {
+        const currentHtml = editorRef.current.innerHTML;
+        lastContentRef.current = currentHtml;
+        persistChanges(currentHtml);
+      }
+    } else if (newMode === 'edit') {
+      setTimeout(() => {
+        if (editorRef.current && activeNote) {
+          editorRef.current.innerHTML = ensureHtmlContent(activeNote.content || '');
+        }
+      }, 30);
+    }
+
+    setViewMode(newMode);
+  };
 
   // All unique tags across notes
   const allTags = useMemo(() => {
@@ -384,9 +430,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       <p><br></p>
     `;
 
-    insertHtmlAtCursor(visualScriptureHtml);
-
-    // También registrar en pasajes vinculados si no existe
+    // Registrar en pasajes vinculados si no existe
     const sorted = selectedVerses.length > 0 ? [...selectedVerses].sort((a, b) => a - b) : [1];
     const vStart = sorted[0];
     const vEnd = sorted[sorted.length - 1];
@@ -394,6 +438,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       (lv) => lv.bookId === currentBookId && lv.chapter === currentChapter && lv.verseStart === vStart
     );
 
+    let updatedLinked = activeNote.linkedVerses;
     if (!alreadyLinked) {
       const newLink: LinkedVerse = {
         id: `link-${Date.now()}`,
@@ -404,10 +449,29 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
         reference: refText,
         textSnippet: snippet.slice(0, 120),
       };
+      updatedLinked = [...activeNote.linkedVerses, newLink];
+    }
+
+    // Si estamos en modo púlpito o editorRef no está montado, añadir al contenido visual directamente
+    if (viewMode === 'pulpit' || !editorRef.current) {
+      const currentHtml = ensureHtmlContent(activeNote.content || '');
+      const newContent = currentHtml + '\n' + visualScriptureHtml;
+      lastContentRef.current = newContent;
       onUpdateNote({
         ...activeNote,
-        content: editorRef.current ? editorRef.current.innerHTML : activeNote.content,
-        linkedVerses: [...activeNote.linkedVerses, newLink],
+        content: newContent,
+        linkedVerses: updatedLinked,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      // Modo edición activo: insertar en el cursor
+      insertHtmlAtCursor(visualScriptureHtml);
+      const newContent = editorRef.current.innerHTML;
+      lastContentRef.current = newContent;
+      onUpdateNote({
+        ...activeNote,
+        content: newContent,
+        linkedVerses: updatedLinked,
         updatedAt: new Date().toISOString(),
       });
     }
@@ -682,7 +746,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                 {/* Alternador de Modo de Trabajo */}
                 <div className="flex items-center bg-stone-200 dark:bg-stone-800 rounded-lg p-0.5 text-xs font-medium">
                   <button
-                    onClick={() => setViewMode('edit')}
+                    onClick={() => handleSwitchViewMode('edit')}
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors ${
                       viewMode === 'edit'
                         ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs font-semibold'
@@ -694,7 +758,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                     <span>Editor</span>
                   </button>
                   <button
-                    onClick={() => setViewMode('pulpit')}
+                    onClick={() => handleSwitchViewMode('pulpit')}
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors ${
                       viewMode === 'pulpit'
                         ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs font-semibold'
@@ -967,24 +1031,32 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                 />
               ) : (
                 /* Modo Púlpito: Lectura limpia, tipografía editorial grande sin barras de herramientas */
-                <div className="max-w-3xl mx-auto space-y-4 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-lg sm:text-xl">
-                  <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-sans border-b border-stone-200 dark:border-stone-800 pb-3">
-                    {activeNote.title || 'Bosquejo sin título'}
-                  </h1>
-
-                  <div className="flex items-center gap-3 text-xs font-sans text-stone-400 pb-2">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {new Date(activeNote.updatedAt).toLocaleDateString()}
-                    </span>
-                    {activeNote.tags.length > 0 && (
-                      <span>• {activeNote.tags.map((t) => `#${t}`).join(' ')}</span>
-                    )}
+                <div className="max-w-3xl mx-auto space-y-4 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-lg sm:text-xl pulpit-view">
+                  <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-2">
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-sans">
+                      {activeNote.title || 'Bosquejo sin título'}
+                    </h1>
+                    <div className="flex items-center gap-2 text-xs font-sans text-stone-400">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {new Date(activeNote.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
 
+                  {activeNote.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 text-xs font-sans text-stone-500 dark:text-stone-400">
+                      {activeNote.tags.map((t) => (
+                        <span key={t} className="px-2 py-0.5 rounded-full bg-stone-200 dark:bg-stone-800 text-[11px]">
+                          #{t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   <div
-                    className="study-editor prose dark:prose-invert max-w-none font-serif select-text"
-                    dangerouslySetInnerHTML={{ __html: markdownToHtml(activeNote.content) }}
+                    className="study-editor max-w-none font-serif select-text text-lg sm:text-xl leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: ensureHtmlContent(activeNote.content) }}
                   />
                 </div>
               )}
