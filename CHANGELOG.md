@@ -7,6 +7,17 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-01
+
+### Added
+- **Estudio de Tarjetas Visuales de Versículos (*Verse Card Studio*):**
+  - Generador interactivo de imágenes de alta resolución ($1080\times1080$ y $1080\times1920$) para estados de WhatsApp, historias de Instagram y publicaciones en redes.
+  - 6 estilos de diseño prémium: *Obsidiana Dorada*, *Azul Celestial*, *Paz Esmeralda*, *Púrpura Real*, *Papiro Clásico* y *Minimalista Blanco*.
+  - Opciones de personalización tipográfica (Serif clásico vs Sans contemporáneo), alineación y escala de fuente.
+  - Descarga directa en formato PNG en alta definición y copiado directo de imagen al portapapeles.
+  - Firma y sello visual oficial: `📖 Biblia RVR 1960 • Una app de SoyJhery`.
+- **Botón directo "Crear Imagen" en la barra de acción flotante** al seleccionar uno o múltiples versículos.
+
 ## [0.1.0] - 2026-10-01
 
 ### Added

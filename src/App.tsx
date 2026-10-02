@@ -8,6 +8,7 @@ import { BookmarksDrawer } from './components/BookmarksDrawer';
 import { FavoritesDrawer } from './components/FavoritesDrawer';
 import { SearchModal } from './components/SearchModal';
 import { SettingsModal } from './components/SettingsModal';
+import { VerseCardModal } from './components/VerseCardModal';
 
 import { bibleService } from './services/bibleService';
 import { storageService, initialData, BibleUserData } from './services/storageService';
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 
   // Selección pendiente para el modal de grupos
   const [pendingSelection, setPendingSelection] = useState<{
@@ -381,6 +383,21 @@ export const App: React.FC = () => {
     navigator.clipboard.writeText(quote);
   };
 
+  // Texto y referencia seleccionados para diseñar tarjeta
+  const selectedCardData = useMemo(() => {
+    if (selectedVerses.length === 0) return { text: '', ref: '' };
+    const sorted = [...selectedVerses].sort((a, b) => a - b);
+    const versesList: string[] = [];
+    for (let v = sorted[0]; v <= sorted[sorted.length - 1]; v++) {
+      const t = currentVerses[v - 1];
+      if (t) versesList.push(t);
+    }
+    return {
+      text: versesList.join(' '),
+      ref: bibleService.formatReference(currentBookId, currentChapter, sorted[0], sorted[sorted.length - 1]),
+    };
+  }, [selectedVerses, currentVerses, currentBookId, currentChapter]);
+
   // Ajustes de lectura
   const handleUpdateSettings = useCallback((newSettings: Partial<UserSettings>) => {
     setUserData((prev) => {
@@ -478,6 +495,7 @@ export const App: React.FC = () => {
         isAllFavorite={isAllFavorite}
         onHighlight={handleHighlight}
         onAddToCollection={handleOpenAddToCollection}
+        onOpenCardStudio={() => setIsCardModalOpen(true)}
         onBookmark={() => {
           if (selectedVerses.length > 0) {
             handleAddBookmark(
@@ -490,6 +508,14 @@ export const App: React.FC = () => {
           }
         }}
         onCopy={handleCopySelection}
+      />
+
+      {/* Verse Card Studio Modal (Creador de Imágenes para Redes de SoyJhery) */}
+      <VerseCardModal
+        isOpen={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
+        verseText={selectedCardData.text}
+        reference={selectedCardData.ref}
       />
 
       {/* Modals & Drawers */}

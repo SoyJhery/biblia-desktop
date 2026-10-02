@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check } from 'lucide-react';
+import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles } from 'lucide-react';
 import { HighlightColor } from '../types';
 
 interface VerseActionBarProps {
@@ -11,6 +11,7 @@ interface VerseActionBarProps {
   isAllFavorite: boolean;
   onHighlight: (color: HighlightColor | null) => void;
   onAddToCollection: () => void;
+  onOpenCardStudio: () => void;
   onBookmark: () => void;
   onCopy: () => void;
 }
@@ -32,6 +33,7 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
   isAllFavorite,
   onHighlight,
   onAddToCollection,
+  onOpenCardStudio,
   onBookmark,
   onCopy,
 }) => {
@@ -126,6 +128,16 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
         >
           <FolderPlus className="w-3.5 h-3.5" />
           <span>Agrupar</span>
+        </button>
+
+        {/* Crear Tarjeta / Imagen para Redes */}
+        <button
+          onClick={onOpenCardStudio}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 text-amber-300 font-semibold transition-all border border-amber-500/30 shadow-xs"
+          title="Diseñar imagen para WhatsApp, Instagram o Facebook"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span className="hidden sm:inline">Crear Imagen</span>
         </button>
 
         {/* Bookmark */}
