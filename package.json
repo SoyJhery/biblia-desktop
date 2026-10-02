@@ -1,12 +1,12 @@
 {
   "name": "biblia-desktop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Aplicación de estudio bíblico multiplataforma (Windows y Linux) con Reina-Valera 1960, modo oscuro, favoritos, marcadores y colecciones temáticas.",
   "author": "SoyJhery <soyjhery@gmail.com>",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev:vite": "vite --host 127.0.0.1 --port 5173",
+    "dev:vite": "vite --host 0.0.0.0 --port 5173",
     "dev:electron": "electron .",
     "dev": "concurrently -k \"npm run dev:vite\" \"wait-on tcp:127.0.0.1:5173 && npm run build:electron && npm run dev:electron\"",
     "build:vite": "vite build",
@@ -55,15 +55,18 @@
       "target": [
         "nsis",
         "portable"
-      ],
-      "artifactName": "${productName}-Setup-${version}.${ext}"
+      ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Biblia RVR 1960 - SoyJhery"
+      "shortcutName": "Biblia RVR 1960 - SoyJhery",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
     },
     "linux": {
       "target": [

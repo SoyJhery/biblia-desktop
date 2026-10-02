@@ -7,6 +7,26 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-02
+
+### Added
+- **Modo Proyector & Segunda Pantalla Multimonitor (*Multi-Display Church & Stream Projector*):**
+  - Detección multimonitor nativa con Electron `screen` API para identificar pantallas secundarias (HDMI, DisplayPort, VGA o proyectores inalámbricos).
+  - Ventana de proyección dedicada independiente sin bordes (*borderless fullscreen*) que se abre en la segunda pantalla seleccionada (`projectorWindow`).
+  - Consola de Operador Eclesiástico en la ventana principal con:
+    - Monitor de salida en vivo con relación de aspecto 16:9 que muestra en tiempo real lo que ve la congregación.
+    - Modo *Blackout* (F9): pantalla negra instantánea para momentos solemnes y de oración.
+    - Modo *Pantalla de Espera / Logo* (F10): presentación solemne del logotipo de la Biblia y Salmos 119:105.
+    - Modo *Tercio Inferior* (*Lower Thirds*): renderizado en la zona inferior de la pantalla para superposición en OBS Studio, vMix o transmisiones en directo.
+    - Paletas litúrgicas de fondo: *Obsidiana Dorada*, *Azul Medianoche*, *Papiro Solemne*, *Paz Esmeralda* y fondo transparente para streaming.
+    - Control de escala tipográfica en vivo (70% - 160%).
+    - Lista interactiva de versículos del capítulo en curso para transmisión con un clic.
+  - Sincronización universal en tiempo real: comunicación bidireccional por IPC en Electron y fallback con `BroadcastChannel` para navegador o popups.
+  - Botón directo `"Proyectar"` en la barra de acción contextual flotante (`VerseActionBar`) al seleccionar cualquier versículo o pasaje.
+  - Botón directo de proyección de bosquejos homiléticos desde el `StudyNotebook`.
+  - Botón `"Proyector"` en la barra superior con indicador de estado (Desconectado, En Vivo, Blackout, Espera).
+  - Atajos de teclado para el operador: `F9` (Blackout), `F10` (Logo), `F` (Pantalla Completa), `Ctrl+Shift+P` (Abrir/Cerrar Consola).
+
 ## [0.3.0] - 2026-10-01
 
 ### Added

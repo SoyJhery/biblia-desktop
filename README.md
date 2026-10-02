@@ -37,6 +37,16 @@ Proporcionar una experiencia integral, 100% offline, altamente estética y sin d
 - **Modo Púlpito:** Vista limpia, sin barras de herramientas ni distracciones, con tipografía editorial ampliada para predicar con seguridad desde el atril.
 - **Exportación:** Copiado directo con formato, exportación en Markdown (`.md`) y soporte para impresión o guardado a PDF (`Ctrl+P`).
 
+### 📽️ Modo Proyector & Segunda Pantalla (HDMI / OBS / vMix)
+- **Detección multimonitor automática:** Reconocimiento de pantallas secundarias y proyectores externos mediante Electron `screen` API.
+- **Ventana de proyección independiente:** Ventana dedicada sin marcos ni bordes (*borderless fullscreen*) para la congregación.
+- **Consola de Operador Eclesiástico:** Monitor 16:9 en vivo con previsualización exacta, control de fondo, selector de monitores y navegación de versículos.
+- **Modos de visualización litúrgicos:**
+  - *Versículo Completo:* Tipografía responsive de alto contraste con auto-escalado visual.
+  - *Puntos del Sermón:* Proyección directa de bosquejos desde el cuaderno homilético.
+  - *Tercio Inferior (Lower Thirds):* Superposición inferior para transmisiones en directo en OBS Studio o vMix.
+- **Funciones de control eclesiástico en vivo:** Modo Blackout instantáneo (F9) para oración, Pantalla de Espera con Logo sagrado (F10) y paletas solemnes (*Obsidiana Dorada*, *Azul Medianoche*, *Papiro Solemne*, *Paz Esmeralda* y transparente).
+
 ---
 
 ## 3. 🗺️ Roadmap de Mejoras (Visión de Futuro)
@@ -48,7 +58,7 @@ Este proyecto sigue una visión escalonada de desarrollo continuo, priorizando l
 | **Fase 1** | `v0.1.0` | ✅ **Completado** | **Núcleo Canónico & Motor de Lectura:** 66 libros offline, SQLite/JSON, temas claro/sepia/oscuro, favoritos, marcadores, colecciones temáticas, soporte Windows (`.exe`) y Linux. |
 | **Fase 2** | `v0.2.0` | ✅ **Completado** | **Verse Card Studio HD:** Creador de postales en 1:1 y 9:16 con paletas prémium, descarga PNG y portapapeles. |
 | **Fase 3** | `v0.3.0` | ✅ **Completado** | **Cuaderno Homilético & Modo Púlpito:** Pantalla dividida, editor visual WYSIWYG, inserción de tarjetas bíblicas en bloque, tags y vista de atril. |
-| **Fase 4** | `v0.4.0` | 🚀 **Próximo** | **Modo Proyector / Segunda Pantalla (HDMI / TV):** Transmisión de versículos y puntos del sermón a pantallas externas o proyectores del templo, con control de operador independiente, fondos dinámicos y visor de versículo actual. |
+| **Fase 4** | `v0.4.0` | ✅ **Completado** | **Modo Proyector / Segunda Pantalla (HDMI / TV):** Transmisión de versículos y puntos del sermón a pantallas secundarias o proyectores del templo, consola de operador independiente, monitor 16:9 en vivo, modo Blackout, Lower Thirds para OBS y paletas litúrgicas. |
 | **Fase 5** | `v0.5.0` | 📋 **Planificado** | **Concordancia Strong & Referencias Cruzadas:** Enlaces de números Strong a léxicos hebreo/griego palabra por palabra y panel de pasajes paralelos interconectados. |
 | **Fase 6** | `v0.6.0` | 📋 **Planificado** | **Mapas Cartográficos & Cronología Interactiva:** Mapas históricos interactivos de las tierras bíblicas (rutas del Éxodo, viajes de Pablo) y línea de tiempo bíblica desde la Creación hasta el Apocalipsis. |
 | **Fase 7** | `v0.7.0` | 📋 **Planificado** | **Sincronización Segura Local-First / P2P:** Respaldos automáticos cifrados de usuario a usuario o nube privada sin intermediarios para mantener sermones y notas a salvo entre equipos. |
@@ -109,33 +119,36 @@ biblia-desktop/
 │   └── preload.ts          # Bridge seguro contextBridge
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx           # Barra superior con navegación y acciones rápidas
-│   │   ├── Reader.tsx           # Lector central con tipografía editorial
-│   │   ├── NavigationModal.tsx  # Selector rápido de 66 libros y cuadrícula
-│   │   ├── VerseActionBar.tsx   # Menú flotante de acciones sobre versículos
-│   │   ├── VerseCardModal.tsx   # Verse Card Studio para exportación de imágenes
-│   │   ├── StudyNotebook.tsx    # Cuaderno homilético WYSIWYG y Modo Púlpito
-│   │   ├── CollectionsModal.tsx # Gestor de colecciones y grupos temáticos
-│   │   ├── SearchModal.tsx      # Buscador global insensible a acentos
-│   │   ├── BookmarksDrawer.tsx  # Panel lateral de marcadores de lectura
-│   │   ├── FavoritesDrawer.tsx  # Panel lateral de favoritos
-│   │   └── SettingsModal.tsx    # Ajustes de tema, tipografía y respaldos
+│   │   ├── Header.tsx                 # Barra superior con navegación y acciones rápidas
+│   │   ├── Reader.tsx                 # Lector central con tipografía editorial
+│   │   ├── NavigationModal.tsx        # Selector rápido de 66 libros y cuadrícula
+│   │   ├── VerseActionBar.tsx         # Menú flotante de acciones sobre versículos
+│   │   ├── VerseCardModal.tsx         # Verse Card Studio para exportación de imágenes
+│   │   ├── StudyNotebook.tsx          # Cuaderno homilético WYSIWYG y Modo Púlpito
+│   │   ├── ProjectorScreen.tsx        # Pantalla de proyección multimonitor borderless
+│   │   ├── ProjectorConsoleModal.tsx  # Consola de operador (16:9, Blackout, OBS Lower Thirds)
+│   │   ├── CollectionsModal.tsx       # Gestor de colecciones y grupos temáticos
+│   │   ├── SearchModal.tsx            # Buscador global insensible a acentos
+│   │   ├── BookmarksDrawer.tsx        # Panel lateral de marcadores de lectura
+│   │   ├── FavoritesDrawer.tsx        # Panel lateral de favoritos
+│   │   └── SettingsModal.tsx          # Ajustes de tema, tipografía y respaldos
 │   ├── data/
-│   │   ├── books.json           # Metadatos canónicos de los 66 libros
-│   │   └── bible-verses.json    # 31,104 versículos estructurados
+│   │   ├── books.json                 # Metadatos canónicos de los 66 libros
+│   │   └── bible-verses.json          # 31,104 versículos estructurados
 │   ├── services/
-│   │   ├── bibleService.ts      # Búsqueda y formateo de referencias
-│   │   └── storageService.ts    # Persistencia local y respaldos JSON
+│   │   ├── bibleService.ts            # Búsqueda y formateo de referencias
+│   │   ├── storageService.ts          # Persistencia local y respaldos JSON
+│   │   └── projectorService.ts        # Sincronización de proyección IPC / BroadcastChannel
 │   ├── types/
-│   │   └── index.ts             # Definición de tipos TypeScript
-│   ├── App.tsx                  # Componente raíz y orquestador del estudio bíblico
-│   ├── index.css                # Estilos globales, paletas, temas y componentes visuales
-│   └── main.tsx                 # Entrada principal de React
-├── ROADMAP.md               # Hoja de ruta detallada de versiones y mejoras futuras
-├── CHANGELOG.md             # Historial de cambios bajo estándar Keep a Changelog
-├── package.json             # Manifiesto del proyecto (SemVer 0.3.0)
-├── run.sh                   # Script de ejecución rápida
-└── dev.sh                   # Script de control de desarrollo con PID
+│   │   └── index.ts                   # Definición de tipos TypeScript
+│   ├── App.tsx                        # Componente raíz y orquestador del estudio bíblico
+│   ├── index.css                      # Estilos globales, paletas, temas y componentes visuales
+│   └── main.tsx                       # Entrada principal de React
+├── ROADMAP.md                     # Hoja de ruta detallada de versiones y mejoras futuras
+├── CHANGELOG.md                   # Historial de cambios bajo estándar Keep a Changelog
+├── package.json                   # Manifiesto del proyecto (SemVer 0.4.0)
+├── run.sh                         # Script de ejecución rápida
+└── dev.sh                         # Script de control de desarrollo con PID
 ```
 
 ---
@@ -143,6 +156,6 @@ biblia-desktop/
 ## 7. 🏷️ Autoría, Contacto y Copyright
 - **Autor y Desarrollador:** SoyJhery
 - **Correo Oficial de Contacto y Soporte:** [soyjhery@gmail.com](mailto:soyjhery@gmail.com)
-- **Versión Actual:** `0.3.0` (SemVer)
+- **Versión Actual:** `0.4.0` (SemVer)
 - **Texto Bíblico:** Reina-Valera 1960 (RVR1960)
 - **Derechos de Autor:** Copyright © 2026 SoyJhery. Todos los derechos reservados.

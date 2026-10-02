@@ -30,8 +30,10 @@ import {
   Sparkles,
   Type,
   Minus,
+  Tv,
 } from 'lucide-react';
 import { StudyNote, LinkedVerse } from '../types';
+import { projectorService } from '../services/projectorService';
 
 interface StudyNotebookProps {
   isOpen: boolean;
@@ -82,19 +84,67 @@ export function cleanHtmlContent(content: string, noteTitle?: string): string {
     return parts.join('\n');
   });
 
-  // 2. Limpiar párrafos vacíos y saltos al inicio
+  // 2. Extraer todas las tarjetas bíblicas para deduplicación inteligente por índice
+  // Si hay tarjetas repetidas o una genérica ("Mateo Cap. 1") y otra específica ("Mateo 1:5-8"),
+  // la tarjeta inferior prevalece y se eliminan las copias redundantes superiores.
+  const verseBoxRegex = /<div class="verse-box"[^>]*>[\s\S]*?<div class="verse-ref">([\s\S]*?)<\/div>\s*<\/div>\s*(<p><br\/?><\/p>)?/gi;
+  interface CardInfo {
+    index: number;
+    fullMatch: string;
+    chapterKey: string;
+  }
+  const cards: CardInfo[] = [];
+  let m: RegExpExecArray | null;
+  let cardIndex = 0;
+  while ((m = verseBoxRegex.exec(cleaned)) !== null) {
+    const rawRef = m[1].replace(/<[^>]+>/g, '').replace(/📖|—|Reina-Valera 1960/gi, '').trim();
+    const normMatch = rawRef.match(/^([1-3]?\s*[a-záéíóúñ]+)\s*(?:cap\.?|c\.)?\s*(\d+)/i);
+    const chapterKey = normMatch ? `${normMatch[1].toLowerCase().trim()} ${normMatch[2]}` : rawRef.toLowerCase();
+    cards.push({
+      index: cardIndex++,
+      fullMatch: m[0],
+      chapterKey,
+    });
+  }
+
+  // Marcar los índices superiores (anteriores) para eliminar, preservando la tarjeta inferior
+  const indicesToRemove = new Set<number>();
+  for (let i = 0; i < cards.length; i++) {
+    for (let j = i + 1; j < cards.length; j++) {
+      if (cards[i].chapterKey === cards[j].chapterKey) {
+        indicesToRemove.add(cards[i].index);
+      }
+    }
+  }
+
+  let matchCounter = 0;
+  cleaned = cleaned.replace(/<div class="verse-box"[^>]*>[\s\S]*?<div class="verse-ref">([\s\S]*?)<\/div>\s*<\/div>\s*(<p><br\/?><\/p>)?/gi, (fullBox) => {
+    const shouldRemove = indicesToRemove.has(matchCounter);
+    matchCounter++;
+    return shouldRemove ? '' : fullBox;
+  });
+
+  // 3. Limpiar párrafos vacíos y saltos al inicio
   cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/gi, '');
 
-  // 3. Si el primer elemento es un encabezado que contiene o equivale al título, o el título por defecto, removerlo
+  // 4. Si existe un encabezado que contiene o equivale al título, o el título por defecto, removerlo
   const escaped = (noteTitle || '').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const pattern = escaped ? `(${escaped}|Nuevo Bosquejo( de Estudio)?)` : `Nuevo Bosquejo( de Estudio)?`;
-  const titleRegex = new RegExp(`^\\s*<h[1-2][^>]*>\\s*${pattern}\\s*<\\/h[1-2]>\\s*(<p><br\\/?><\\/p>)?`, 'i');
-  cleaned = cleaned.replace(titleRegex, '');
-  const mdTitleRegex = new RegExp(`^\\s*#{1,2}\\s*${pattern}\\s*(\n|$)`, 'i');
-  cleaned = cleaned.replace(mdTitleRegex, '');
+  const titleRegex = new RegExp(`(^|\\n|\\s*)<h[1-2][^>]*>\\s*${pattern}\\s*<\\/h[1-2]>\\s*(<p><br\\/?><\\/p>)?`, 'gi');
+  cleaned = cleaned.replace(titleRegex, '$1');
+  const mdTitleRegex = new RegExp(`(^|\\n|\\s*)#{1,2}\\s*${pattern}\\s*(\n|$)`, 'gi');
+  cleaned = cleaned.replace(mdTitleRegex, '$1');
 
-  // 4. Limpiar de nuevo párrafos vacíos al inicio tras remover el título
-  cleaned = cleaned.replace(/^(\s*<p><br\/?><\/p>\s*)+/gi, '');
+  // 5. Normalizar estructura de párrafos editables:
+  // Asegurar que tras cada tarjeta (.verse-box) exista un párrafo editable (<p><br></p>)
+  cleaned = cleaned.replace(/(<div class="verse-box"[\s\S]*?<\/div>\s*<\/div>)\s*(?!<p>)/gi, '$1\n<p><br></p>\n');
+  cleaned = cleaned.replace(/(<p><br\/?><\/p>\s*){2,}/gi, '<p><br></p>\n');
+  cleaned = cleaned.replace(/(\s*<p><br\/?><\/p>\s*)+$/gi, '\n<p><br></p>');
+
+  // 6. Asegurar SIEMPRE que termine en al menos un párrafo editable para que el usuario pueda escribir
+  if (!cleaned.endsWith('<p><br></p>')) {
+    cleaned = cleaned.trim() + '\n<p><br></p>';
+  }
 
   return cleaned.trim() || '<p><br></p>';
 }
@@ -191,10 +241,11 @@ export function ensureHtmlContent(content: string): string {
     result.push(`<p>${processInline(trimmed)}</p>`);
   }
 
-  if (inUl) result.push('</ul>');
-  if (inOl) result.push('</ol>');
-
-  return result.join('\n');
+  const joined = result.join('\n');
+  if (!joined.endsWith('<p><br></p>') && !joined.endsWith('</p>')) {
+    return joined + '\n<p><br></p>';
+  }
+  return joined;
 }
 
 /**
@@ -263,6 +314,17 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   const saveTimeoutRef = useRef<any>(null);
   const currentNoteIdRef = useRef<string | null>(null);
   const lastContentRef = useRef<string>('');
+  const activeNoteRef = useRef<StudyNote | null>(null);
+  activeNoteRef.current = activeNote;
+  const lastCaretRangeRef = useRef<Range | null>(null);
+
+  // Capturar posición deliberada del cursor dentro del editor
+  const saveCaretPosition = () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && editorRef.current && editorRef.current.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+      lastCaretRangeRef.current = sel.getRangeAt(0).cloneRange();
+    }
+  };
 
   // Sincronizar título local y HTML cuando cambia la nota seleccionada
   useEffect(() => {
@@ -354,23 +416,25 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   // Guardar cambios con debounce para que el teclado responda a 60fps sin re-renderizar la app entera
   const persistChanges = useCallback(
     (newContent?: string, newTitle?: string) => {
-      if (!activeNote) return;
-      const contentToSave = newContent !== undefined ? newContent : (editorRef.current ? editorRef.current.innerHTML : activeNote.content);
-      const titleToSave = newTitle !== undefined ? newTitle : (localTitle || activeNote.title);
+      const current = activeNoteRef.current;
+      if (!current) return;
+      const contentToSave = newContent !== undefined ? newContent : (editorRef.current ? editorRef.current.innerHTML : current.content);
+      const titleToSave = newTitle !== undefined ? newTitle : (localTitle || current.title);
 
       onUpdateNote({
-        ...activeNote,
+        ...current,
         title: titleToSave,
         content: contentToSave,
         updatedAt: new Date().toISOString(),
       });
     },
-    [activeNote, localTitle, onUpdateNote]
+    [localTitle, onUpdateNote]
   );
 
   // Manejador de entrada de texto directo en el editor visual con debounce suave
   const handleEditorInput = () => {
-    if (!editorRef.current || !activeNote) return;
+    const current = activeNoteRef.current;
+    if (!editorRef.current || !current) return;
     const html = editorRef.current.innerHTML;
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -382,7 +446,8 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   // Al salir del editor (blur), persistir de inmediato
   const handleEditorBlur = () => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    if (editorRef.current && activeNote) {
+    const current = activeNoteRef.current;
+    if (editorRef.current && current) {
       persistChanges(editorRef.current.innerHTML);
     }
   };
@@ -410,69 +475,151 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     handleEditorInput();
   };
 
-  // Insertar un bloque HTML (como una tarjeta bíblica) de manera limpia y sin corromper etiquetas H1/H2
-  const insertVerseBlock = (htmlToInsert: string) => {
+  // Insertar un bloque HTML (como una tarjeta bíblica) de manera limpia y garantizando un párrafo editable activo
+  const insertVerseBlock = (htmlToInsert: string, newRef?: string) => {
     if (!editorRef.current) return;
-    editorRef.current.focus();
 
+    // Extraer libro y capítulo de la nueva referencia si viene especificada (ej. "mateo 1")
+    let newChapterKey = '';
+    if (newRef) {
+      const match = newRef.match(/^([1-3]?\s*[a-záéíóúñ]+)\s*(?:cap\.?|c\.)?\s*(\d+)/i);
+      if (match) newChapterKey = `${match[1].toLowerCase().trim()} ${match[2]}`;
+    }
+
+    // Comprobar si el editor ya contiene una tarjeta previa de este mismo capítulo o si solo contiene una tarjeta previa sin notas de usuario
+    const existingBoxes = Array.from(editorRef.current.querySelectorAll('.verse-box'));
+    let boxToReplace: Element | null = null;
+
+    if (existingBoxes.length > 0) {
+      const textWithoutBoxes = editorRef.current.textContent?.replace(/\s+/g, '') || '';
+      const boxesText = existingBoxes.map((b) => b.textContent?.replace(/\s+/g, '') || '').join('');
+      const onlyHasBoxes = textWithoutBoxes === boxesText;
+
+      for (const box of existingBoxes) {
+        const refEl = box.querySelector('.verse-ref');
+        const boxRefText = refEl?.textContent || '';
+        const match = boxRefText.match(/^([1-3]?\s*[a-záéíóúñ]+)\s*(?:cap\.?|c\.)?\s*(\d+)/i);
+        const boxKey = match ? `${match[1].toLowerCase().trim()} ${match[2]}` : '';
+
+        if (onlyHasBoxes || (newChapterKey && boxKey === newChapterKey)) {
+          boxToReplace = box;
+          break;
+        }
+      }
+    }
+
+    if (boxToReplace) {
+      // Reemplazar la tarjeta previa directamente para no acumular versículos arriba y abajo
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlToInsert;
+      const newBox = tempDiv.firstElementChild;
+      if (newBox) {
+        boxToReplace.replaceWith(newBox);
+      }
+      // Asegurar que exista un párrafo después de la tarjeta para escribir
+      let nextP = newBox?.nextElementSibling as HTMLElement;
+      if (!nextP || nextP.tagName !== 'P') {
+        nextP = document.createElement('p');
+        nextP.innerHTML = '<br>';
+        newBox?.after(nextP);
+      }
+      editorRef.current.focus();
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(nextP);
+      range.collapse(false);
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+      handleEditorInput();
+      return;
+    }
+
+    // Verificar si el editor está vacío o solo contiene un salto de párrafo vacío
+    const currentText = (editorRef.current.textContent || '').trim();
+    const currentHtml = editorRef.current.innerHTML.trim();
+    const isEmpty = !currentHtml || currentHtml === '<p><br></p>' || currentHtml === '<br>' || (!currentText && existingBoxes.length === 0);
+
+    if (isEmpty) {
+      editorRef.current.innerHTML = htmlToInsert;
+      let nextP = editorRef.current.querySelector('p:last-of-type') as HTMLElement;
+      if (!nextP) {
+        nextP = document.createElement('p');
+        nextP.innerHTML = '<br>';
+        editorRef.current.appendChild(nextP);
+      }
+      editorRef.current.focus();
+      const range = document.createRange();
+      range.selectNodeContents(nextP);
+      range.collapse(false);
+      const sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      handleEditorInput();
+      return;
+    }
+
+    // Intentar restaurar la selección previa guardada si existe y sigue dentro del editor
+    let range: Range | null = null;
     const sel = window.getSelection();
-    const isInside = sel && sel.rangeCount > 0 && editorRef.current.contains(sel.getRangeAt(0).commonAncestorContainer);
 
-    if (!isInside) {
-      // Si el cursor no estaba dentro del editor, anexar al final de forma segura
+    if (lastCaretRangeRef.current && editorRef.current.contains(lastCaretRangeRef.current.commonAncestorContainer)) {
+      range = lastCaretRangeRef.current;
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    } else if (sel && sel.rangeCount > 0 && editorRef.current.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+      range = sel.getRangeAt(0);
+    }
+
+    // Si el cursor está en el offset 0 del editor o no hay un rango explícito dentro de un elemento hijo específico:
+    const isAtStartContainer = range && (range.commonAncestorContainer === editorRef.current && range.startOffset === 0);
+    if (!range || isAtStartContainer) {
       editorRef.current.insertAdjacentHTML('beforeend', htmlToInsert);
-      handleEditorInput();
-      return;
+    } else {
+      let blockParent: Node | null = range.commonAncestorContainer;
+      if (blockParent.nodeType === Node.TEXT_NODE) {
+        blockParent = blockParent.parentElement;
+      }
+
+      const containerBlock = (blockParent as HTMLElement)?.closest?.('h1, h2, h3, h4, h5, h6, .verse-box');
+      const pBlock = (blockParent as HTMLElement)?.closest?.('p');
+
+      if (containerBlock && editorRef.current.contains(containerBlock)) {
+        containerBlock.insertAdjacentHTML('afterend', htmlToInsert);
+      } else if (pBlock && editorRef.current.contains(pBlock) && (!pBlock.textContent || !pBlock.textContent.trim())) {
+        pBlock.insertAdjacentHTML('beforebegin', htmlToInsert);
+        pBlock.remove();
+      } else if (pBlock && editorRef.current.contains(pBlock)) {
+        pBlock.insertAdjacentHTML('afterend', htmlToInsert);
+      } else {
+        editorRef.current.insertAdjacentHTML('beforeend', htmlToInsert);
+      }
     }
 
-    const range = sel.getRangeAt(0);
-    let blockParent: Node | null = range.commonAncestorContainer;
-    if (blockParent.nodeType === Node.TEXT_NODE) {
-      blockParent = blockParent.parentElement;
+    // Asegurar que siempre exista un párrafo editable al final o después de la inserción y enfocarlo
+    let targetP = editorRef.current.querySelector('p:last-of-type') as HTMLElement;
+    if (!targetP) {
+      targetP = document.createElement('p');
+      targetP.innerHTML = '<br>';
+      editorRef.current.appendChild(targetP);
     }
-
-    // Si el cursor está dentro de un encabezado o de otra verse-box, insertar justo DESPUÉS del bloque contenedor
-    const containerBlock = (blockParent as HTMLElement)?.closest?.('h1, h2, h3, h4, h5, h6, .verse-box');
-    if (containerBlock && editorRef.current.contains(containerBlock)) {
-      containerBlock.insertAdjacentHTML('afterend', htmlToInsert);
-      handleEditorInput();
-      return;
-    }
-
-    // Si el cursor está en un párrafo vacío (<p><br></p>), reemplazarlo
-    const pBlock = (blockParent as HTMLElement)?.closest?.('p');
-    if (pBlock && editorRef.current.contains(pBlock) && (!pBlock.textContent || !pBlock.textContent.trim())) {
-      pBlock.insertAdjacentHTML('beforebegin', htmlToInsert);
-      pBlock.remove();
-      handleEditorInput();
-      return;
-    }
-
-    // En cualquier otro caso, insertar en la posición del cursor
-    range.deleteContents();
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlToInsert;
-    const frag = document.createDocumentFragment();
-    let node;
-    let lastNode;
-    while ((node = tempDiv.firstChild)) {
-      lastNode = frag.appendChild(node);
-    }
-    range.insertNode(frag);
-
-    if (lastNode) {
-      const newRange = range.cloneRange();
-      newRange.setStartAfter(lastNode);
-      newRange.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
-    }
+    editorRef.current.focus();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(targetP);
+    newRange.collapse(false);
+    const newSel = window.getSelection();
+    newSel?.removeAllRanges();
+    newSel?.addRange(newRange);
     handleEditorInput();
   };
 
   // Inserción de pasaje bíblico visual estilizado
   const handleInsertCurrentPassage = () => {
-    if (!activeNote) return;
+    const current = activeNoteRef.current || activeNote;
+    if (!current) return;
 
     let refText = '';
     let snippet = '';
@@ -493,6 +640,45 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       snippet = currentChapterVerses.slice(0, 3).map((v) => `${v.verse}. ${v.text}`).join(' ') + '...';
     }
 
+    // Cancelar cualquier guardado debounce pendiente para prevenir condiciones de carrera
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+    // Comprobar idempotencia: Si el pasaje ya existe en el contenido, no duplicar la tarjeta visual
+    const existingContent = current.content || (editorRef.current ? editorRef.current.innerHTML : '');
+    const isAlreadyPresent = existingContent.toLowerCase().includes(refText.toLowerCase());
+
+    // Registrar en pasajes vinculados reemplazando enlaces previos del mismo capítulo para evitar badges duplicados
+    const sorted = selectedVerses.length > 0 ? [...selectedVerses].sort((a, b) => a - b) : [1];
+    const vStart = sorted[0];
+    const vEnd = sorted[sorted.length - 1];
+
+    const filteredLinks = (current.linkedVerses || []).filter(
+      (lv) => !(lv.bookId === currentBookId && lv.chapter === currentChapter)
+    );
+
+    const newLink: LinkedVerse = {
+      id: `link-${Date.now()}`,
+      bookId: currentBookId,
+      chapter: currentChapter,
+      verseStart: vStart,
+      verseEnd: vEnd > vStart ? vEnd : undefined,
+      reference: refText,
+      textSnippet: snippet.slice(0, 120),
+    };
+    const updatedLinked = [...filteredLinks, newLink];
+
+    if (isAlreadyPresent) {
+      // Si la tarjeta ya existe en el cuerpo de la nota, no duplicar; solo actualizar los metadatos de enlaces si hacía falta
+      if (!alreadyLinked) {
+        onUpdateNote({
+          ...current,
+          linkedVerses: updatedLinked,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      return;
+    }
+
     // Tarjeta visual editorial del pasaje (sin símbolos de código ni markdown)
     const visualScriptureHtml = `
       <div class="verse-box" contenteditable="false">
@@ -502,46 +688,24 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       <p><br></p>
     `;
 
-    // Registrar en pasajes vinculados si no existe
-    const sorted = selectedVerses.length > 0 ? [...selectedVerses].sort((a, b) => a - b) : [1];
-    const vStart = sorted[0];
-    const vEnd = sorted[sorted.length - 1];
-    const alreadyLinked = activeNote.linkedVerses.some(
-      (lv) => lv.bookId === currentBookId && lv.chapter === currentChapter && lv.verseStart === vStart
-    );
-
-    let updatedLinked = activeNote.linkedVerses;
-    if (!alreadyLinked) {
-      const newLink: LinkedVerse = {
-        id: `link-${Date.now()}`,
-        bookId: currentBookId,
-        chapter: currentChapter,
-        verseStart: vStart,
-        verseEnd: vEnd > vStart ? vEnd : undefined,
-        reference: refText,
-        textSnippet: snippet.slice(0, 120),
-      };
-      updatedLinked = [...activeNote.linkedVerses, newLink];
-    }
-
     // Si estamos en modo púlpito o editorRef no está montado, añadir al contenido visual directamente
     if (viewMode === 'pulpit' || !editorRef.current) {
-      const currentHtml = ensureHtmlContent(cleanHtmlContent(activeNote.content || '', activeNote.title));
-      const newContent = currentHtml + '\n' + visualScriptureHtml;
+      const currentHtml = cleanHtmlContent(current.content || '', current.title);
+      const newContent = cleanHtmlContent(currentHtml + '\n' + visualScriptureHtml, current.title);
       lastContentRef.current = newContent;
       onUpdateNote({
-        ...activeNote,
+        ...current,
         content: newContent,
         linkedVerses: updatedLinked,
         updatedAt: new Date().toISOString(),
       });
     } else {
-      // Modo edición activo: insertar en el cursor de forma segura
-      insertVerseBlock(visualScriptureHtml);
-      const newContent = editorRef.current.innerHTML;
+      // Modo edición activo: insertar en el cursor o reemplazar tarjeta previa
+      insertVerseBlock(visualScriptureHtml, refText);
+      const newContent = cleanHtmlContent(editorRef.current.innerHTML, current.title);
       lastContentRef.current = newContent;
       onUpdateNote({
-        ...activeNote,
+        ...current,
         content: newContent,
         linkedVerses: updatedLinked,
         updatedAt: new Date().toISOString(),
@@ -883,6 +1047,29 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
                   <button
                     onClick={() => {
+                      if (!activeNote) return;
+                      // Limpiar texto de etiquetas y formatear puntos
+                      const plainText = (activeNote.content || '')
+                        .replace(/<[^>]+>/g, '\n')
+                        .split('\n')
+                        .map((l) => l.trim())
+                        .filter((l) => l.length > 0 && !l.includes('Reina-Valera 1960'));
+                      
+                      const slide = projectorService.createOutlineSlide(
+                        activeNote.title || 'Bosquejo Homilético',
+                        plainText.slice(0, 5),
+                        'Puntos de Predicación'
+                      );
+                      projectorService.sendSlide(slide);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-amber-500 hover:text-amber-600 transition-colors"
+                    title="Proyectar puntos del bosquejo en la segunda pantalla (HDMI)"
+                  >
+                    <Tv className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => {
                       if (confirm(`¿Deseas eliminar el bosquejo "${activeNote.title}"?`)) {
                         onDeleteNote(activeNote.id);
                       }
@@ -1101,7 +1288,26 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
             {/* Lienzo del Editor Visual (WYSIWYG) */}
             <div
               className="flex-1 overflow-y-auto p-4 sm:p-6 print:p-0 cursor-text"
-              onClick={() => editorRef.current?.focus()}
+              onClick={(e) => {
+                if (viewMode === 'edit' && editorRef.current) {
+                  const target = e.target as HTMLElement;
+                  if (target === e.currentTarget || target === editorRef.current || target.closest('.verse-box')) {
+                    let lastP = editorRef.current.querySelector(':scope > p:last-of-type') as HTMLElement;
+                    if (!lastP) {
+                      lastP = document.createElement('p');
+                      lastP.innerHTML = '<br>';
+                      editorRef.current.appendChild(lastP);
+                    }
+                    editorRef.current.focus();
+                    const range = document.createRange();
+                    range.selectNodeContents(lastP);
+                    range.collapse(false);
+                    const sel = window.getSelection();
+                    sel?.removeAllRanges();
+                    sel?.addRange(range);
+                  }
+                }
+              }}
             >
               {viewMode === 'edit' ? (
                 <div
@@ -1109,8 +1315,58 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                   contentEditable
                   suppressContentEditableWarning
                   tabIndex={0}
-                  onInput={handleEditorInput}
-                  onBlur={handleEditorBlur}
+                  onInput={() => {
+                    saveCaretPosition();
+                    handleEditorInput();
+                  }}
+                  onKeyUp={saveCaretPosition}
+                  onMouseUp={saveCaretPosition}
+                  onFocus={() => {
+                    let lastP = editorRef.current?.querySelector(':scope > p:last-of-type') as HTMLElement;
+                    if (!lastP && editorRef.current) {
+                      lastP = document.createElement('p');
+                      lastP.innerHTML = '<br>';
+                      editorRef.current.appendChild(lastP);
+                    }
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0 && lastP) {
+                      const anchor = sel.anchorNode;
+                      const isInsideBlock = anchor && ((anchor as HTMLElement).closest ? (anchor as HTMLElement).closest('p, h1, h2, h3, blockquote, li') : anchor.parentElement?.closest('p, h1, h2, h3, blockquote, li'));
+                      if (!isInsideBlock) {
+                        const range = document.createRange();
+                        range.selectNodeContents(lastP);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                      }
+                    }
+                  }}
+                  onKeyDown={(_e) => {
+                    // Rescatar cursor al último párrafo si el usuario intenta escribir estando en el contenedor principal o cerca de verse-box
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0 && editorRef.current) {
+                      const container = sel.getRangeAt(0).commonAncestorContainer;
+                      const isInsideBlock = (container as HTMLElement)?.closest?.('p, h1, h2, h3, blockquote, li') ||
+                                            (container.parentElement?.closest('p, h1, h2, h3, blockquote, li'));
+                      if (!isInsideBlock) {
+                        let lastP = editorRef.current.querySelector(':scope > p:last-of-type') as HTMLElement;
+                        if (!lastP) {
+                          lastP = document.createElement('p');
+                          lastP.innerHTML = '<br>';
+                          editorRef.current.appendChild(lastP);
+                        }
+                        const range = document.createRange();
+                        range.selectNodeContents(lastP);
+                        range.collapse(false);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    saveCaretPosition();
+                    handleEditorBlur();
+                  }}
                   data-placeholder="Comienza a escribir tu sermón, puntos de estudio o reflexiones aquí. Usa las herramientas superiores para títulos y versículos sin códigos..."
                   className="study-editor w-full min-h-[400px] text-stone-900 dark:text-stone-100 focus:outline-none select-text"
                   spellCheck="true"
