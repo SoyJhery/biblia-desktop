@@ -87,3 +87,24 @@ export interface SearchResult {
   verse: number;
   text: string;
 }
+
+export interface LinkedVerse {
+  id: string;
+  bookId: number;
+  chapter: number;
+  verseStart: number;
+  verseEnd?: number;
+  reference: string;
+  textSnippet: string;
+}
+
+export interface StudyNote {
+  id: string;
+  title: string;
+  content: string; // Texto enriquecido o markdown del sermón o estudio
+  tags: string[];
+  linkedVerses: LinkedVerse[];
+  createdAt: string;
+  updatedAt: string;
+}
+

@@ -10,7 +10,8 @@ import {
   Sliders, 
   Sun, 
   Moon, 
-  Coffee 
+  Coffee,
+  FileText
 } from 'lucide-react';
 import { Book, ThemeMode } from '../types';
 
@@ -32,6 +33,9 @@ interface HeaderProps {
   favoritesCount: number;
   bookmarksCount: number;
   collectionsCount: number;
+  isNotebookOpen: boolean;
+  onToggleNotebook: () => void;
+  notesCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -52,6 +56,9 @@ export const Header: React.FC<HeaderProps> = ({
   favoritesCount,
   bookmarksCount,
   collectionsCount,
+  isNotebookOpen,
+  onToggleNotebook,
+  notesCount,
 }) => {
   return (
     <header className="h-14 border-b border-stone-200 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md px-4 flex items-center justify-between z-30 select-none transition-colors">
@@ -152,6 +159,25 @@ export const Header: React.FC<HeaderProps> = ({
           {favoritesCount > 0 && (
             <span className="ml-0.5 px-1.5 py-0.2 text-[10px] rounded-full bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 font-bold">
               {favoritesCount}
+            </span>
+          )}
+        </button>
+
+        {/* Study Notebook / Bosquejos */}
+        <button
+          onClick={onToggleNotebook}
+          className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            isNotebookOpen
+              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 font-semibold shadow-inner'
+              : 'hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300'
+          }`}
+          title="Abrir/Cerrar Cuaderno de Estudio y Bosquejos (Pantalla Dividida)"
+        >
+          <FileText className="w-4 h-4 text-emerald-500" />
+          <span className="hidden sm:inline">Cuaderno</span>
+          {notesCount > 0 && (
+            <span className="ml-0.5 px-1.5 py-0.2 text-[10px] rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
+              {notesCount}
             </span>
           )}
         </button>

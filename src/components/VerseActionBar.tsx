@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles } from 'lucide-react';
+import { Star, Highlighter, FolderPlus, Bookmark, Copy, X, Check, Sparkles, FileText } from 'lucide-react';
 import { HighlightColor } from '../types';
 
 interface VerseActionBarProps {
@@ -12,6 +12,7 @@ interface VerseActionBarProps {
   onHighlight: (color: HighlightColor | null) => void;
   onAddToCollection: () => void;
   onOpenCardStudio: () => void;
+  onSendToNotebook?: () => void;
   onBookmark: () => void;
   onCopy: () => void;
 }
@@ -34,6 +35,7 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
   onHighlight,
   onAddToCollection,
   onOpenCardStudio,
+  onSendToNotebook,
   onBookmark,
   onCopy,
 }) => {
@@ -139,6 +141,18 @@ export const VerseActionBar: React.FC<VerseActionBarProps> = ({
           <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
           <span className="hidden sm:inline">Crear Imagen</span>
         </button>
+
+        {/* Send to Study Notebook */}
+        {onSendToNotebook && (
+          <button
+            onClick={onSendToNotebook}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold transition-all border border-emerald-500/30 shadow-xs"
+            title="Añadir pasaje al Cuaderno de Estudio / Bosquejo"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">A Nota</span>
+          </button>
+        )}
 
         {/* Bookmark */}
         <button

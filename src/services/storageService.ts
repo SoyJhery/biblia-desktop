@@ -1,4 +1,4 @@
-import { Bookmark, Collection, Favorite, Highlight, UserSettings } from '../types';
+import { Bookmark, Collection, Favorite, Highlight, StudyNote, UserSettings } from '../types';
 
 export interface BibleUserData {
   version: number;
@@ -7,6 +7,7 @@ export interface BibleUserData {
   highlights: Record<string, Highlight>;
   bookmarks: Bookmark[];
   collections: Collection[];
+  notes: StudyNote[];
 }
 
 const STORAGE_KEY = 'biblia_rvr1960_data';
@@ -92,6 +93,50 @@ const defaultCollections: Collection[] = [
   },
 ];
 
+const defaultNotes: StudyNote[] = [
+  {
+    id: 'note-armadura-dios',
+    title: 'Bosquejo: La Armadura de Dios y la Victoria Espiritual',
+    tags: ['Bosquejo', 'Sermón', 'Vida Cristiana'],
+    linkedVerses: [
+      {
+        id: 'link-efesios-6-10-18',
+        bookId: 49, // Efesios
+        chapter: 6,
+        verseStart: 10,
+        verseEnd: 18,
+        reference: 'Efesios 6:10-18',
+        textSnippet: 'Por lo demás, hermanos míos, fortaleceos en el Señor, y en el poder de su fuerza. Vestíos de toda la armadura de Dios...',
+      },
+    ],
+    content: `# Bosquejo: La Armadura de Dios y la Victoria Espiritual
+
+> "Por lo demás, hermanos míos, fortaleceos en el Señor, y en el poder de su fuerza." — Efesios 6:10
+
+## I. El Fundamento de Nuestra Fuerza (vv. 10-13)
+- No batallamos en nuestras propias fuerzas humanas, sino en la fortaleza infinita de Cristo.
+- **Vestíos de toda la armadura**: No es una armadura parcial; Dios provee equipo completo para resistir en el día malo.
+- Reconocer al verdadero enemigo: Nuestra lucha no es contra sangre y carne, sino contra principados y huestes espirituales.
+
+## II. Las Piezas de la Armadura (vv. 14-17)
+1. **El cinto de la verdad**: Sinceridad e integridad ante Dios y los hombres.
+2. **La coraza de justicia**: La justicia de Cristo protegiendo nuestro corazón y emociones.
+3. **El calzado del evangelio de la paz**: Firmeza y presteza para testificar y caminar en armonía.
+4. **El escudo de la fe**: Para apagar todos los dardos de fuego del maligno (la duda, el temor, la condenación).
+5. **El yelmo de la salvación**: Certeza y paz protegiendo nuestros pensamientos y mente.
+6. **La espada del Espíritu**: La Palabra viva de Dios (nuestra arma ofensiva fundamental).
+
+## III. La Estrategia Continua: Oración y Vigilancia (v. 18)
+- Orando en todo tiempo con toda oración y súplica en el Espíritu.
+- Perseverando con vigilancia por todos los santos y ministros del evangelio.
+
+---
+*Notas de estudio personal compiladas en Biblia RVR 1960 - SoyJhery*`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
 export const initialData: BibleUserData = {
   version: 1,
   settings: defaultSettings,
@@ -110,6 +155,7 @@ export const initialData: BibleUserData = {
     },
   ],
   collections: defaultCollections,
+  notes: defaultNotes,
 };
 
 let memoryData: BibleUserData = initialData;
@@ -128,6 +174,7 @@ export const storageService = {
             ...initialData,
             ...electronData,
             settings: { ...defaultSettings, ...electronData.settings },
+            notes: Array.isArray(electronData.notes) ? electronData.notes : defaultNotes,
           };
           isLoaded = true;
           return memoryData;
@@ -142,6 +189,7 @@ export const storageService = {
           ...initialData,
           ...parsed,
           settings: { ...defaultSettings, ...parsed.settings },
+          notes: Array.isArray(parsed.notes) ? parsed.notes : defaultNotes,
         };
       } else {
         memoryData = initialData;

@@ -7,6 +7,25 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-01
+
+### Added
+- **Cuaderno de Bosquejos & Estudio en Pantalla Dividida (*Split-View Sermon & Study Notebook*):**
+  - Panel lateral integrado que permite estudiar las Escrituras en el lector bíblico a la izquierda mientras se escriben prédicas, bosquejos o reflexiones a la derecha en tiempo real.
+  - Modo pantalla dividida adaptable y botón para maximizar a pantalla completa para concentración total de escritura.
+  - Barra de herramientas Markdown integrada (títulos H1, H2, H3, negrita, cursiva, citas en bloque `>`, listas con viñetas y numeradas, separadores).
+  - Botón de inserción inteligente: `"+ Citar pasaje actual"`, que formatea e incrusta la porción bíblica seleccionada en el texto y la vincula de inmediato a la nota.
+  - Sistema de versículos vinculados interactivo: insignias con referencias bíblicas dentro de cada bosquejo; al hacer clic sobre cualquier cita, el lector bíblico navega automáticamente a ese capítulo y versículo.
+  - Modo alternable entre **Editor** (con atajos de formato) y **Púlpito / Vista Previa Formateada** (tipografía editorial de alta legibilidad para ministrar y predicar desde el atril).
+  - Gestión integral de notas con etiquetado dinámico (`#tags`), buscador de notas en tiempo real y filtrado por temas.
+  - Exportación y compartición avanzada:
+    - Copiado al portapapeles con atribución y firma de SoyJhery.
+    - Exportación a archivo de texto Markdown (`.md`).
+    - Preparación directa para impresión limpia o guardado a PDF (`Ctrl+P` / botón imprimir).
+  - Botón directo `"A Nota"` en la barra flotante de selección de versículos para anexar pasajes rápidamente a un bosquejo existente o nuevo.
+  - Atajo global de teclado `Ctrl+E` (o `Cmd+E`) para alternar instantáneamente la visibilidad del cuaderno.
+  - Bosquejo homilético precargado de inspiración: *"Bosquejo: La Armadura de Dios y la Victoria Espiritual"* (Efesios 6:10-18).
+
 ## [0.2.0] - 2026-10-01
 
 ### Added

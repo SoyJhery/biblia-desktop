@@ -9,10 +9,11 @@ import { FavoritesDrawer } from './components/FavoritesDrawer';
 import { SearchModal } from './components/SearchModal';
 import { SettingsModal } from './components/SettingsModal';
 import { VerseCardModal } from './components/VerseCardModal';
+import { StudyNotebook } from './components/StudyNotebook';
 
 import { bibleService } from './services/bibleService';
 import { storageService, initialData, BibleUserData } from './services/storageService';
-import { HighlightColor, UserSettings, CollectionItem } from './types';
+import { HighlightColor, UserSettings, CollectionItem, StudyNote, LinkedVerse } from './types';
 
 export const App: React.FC = () => {
   const books = useMemo(() => bibleService.getBooks(), []);
@@ -32,6 +33,8 @@ export const App: React.FC = () => {
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [isNotebookOpen, setIsNotebookOpen] = useState(false);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
   // Selección pendiente para el modal de grupos
   const [pendingSelection, setPendingSelection] = useState<{
@@ -416,6 +419,120 @@ export const App: React.FC = () => {
     handleUpdateSettings({ theme: nextTheme });
   };
 
+  // Cuaderno de Estudio y Bosquejos
+  const handleToggleNotebook = useCallback(() => {
+    setIsNotebookOpen((prev) => !prev);
+  }, []);
+
+  const handleSelectNote = useCallback((id: string | null) => {
+    setActiveNoteId(id);
+  }, []);
+
+  const handleCreateNote = useCallback((title?: string, initialVerses?: LinkedVerse[]) => {
+    const newNote: StudyNote = {
+      id: `note-${Date.now()}`,
+      title: title || 'Nuevo Bosquejo de Estudio',
+      content: `# ${title || 'Nuevo Bosquejo de Estudio'}\n\n`,
+      tags: ['Estudio'],
+      linkedVerses: initialVerses || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setUserData((prev) => {
+      const updated = {
+        ...prev,
+        notes: [newNote, ...(prev.notes || [])],
+      };
+      storageService.save(updated);
+      return updated;
+    });
+
+    setActiveNoteId(newNote.id);
+    setIsNotebookOpen(true);
+    return newNote.id;
+  }, []);
+
+  const handleUpdateNote = useCallback((updatedNote: StudyNote) => {
+    setUserData((prev) => {
+      const notes = (prev.notes || []).map((n) => (n.id === updatedNote.id ? updatedNote : n));
+      const updated = {
+        ...prev,
+        notes,
+      };
+      storageService.save(updated);
+      return updated;
+    });
+  }, []);
+
+  const handleDeleteNote = useCallback((id: string) => {
+    setUserData((prev) => {
+      const notes = (prev.notes || []).filter((n) => n.id !== id);
+      const updated = {
+        ...prev,
+        notes,
+      };
+      storageService.save(updated);
+      return updated;
+    });
+
+    setActiveNoteId((prevId) => {
+      if (prevId === id) {
+        const remaining = (userData.notes || []).filter((n) => n.id !== id);
+        return remaining.length > 0 ? remaining[0].id : null;
+      }
+      return prevId;
+    });
+  }, [userData.notes]);
+
+  const handleSendSelectionToNotebook = useCallback(() => {
+    if (selectedVerses.length === 0) return;
+
+    const sorted = [...selectedVerses].sort((a, b) => a - b);
+    const vStart = sorted[0];
+    const vEnd = sorted[sorted.length - 1];
+    const ref = bibleService.formatReference(currentBookId, currentChapter, vStart, vEnd);
+
+    const versesList: string[] = [];
+    for (let v = vStart; v <= vEnd; v++) {
+      const t = currentVerses[v - 1];
+      if (t) versesList.push(`${v}. ${t}`);
+    }
+    const snippet = versesList.join(' ');
+
+    const newLink: LinkedVerse = {
+      id: `link-${Date.now()}`,
+      bookId: currentBookId,
+      chapter: currentChapter,
+      verseStart: vStart,
+      verseEnd: vEnd > vStart ? vEnd : undefined,
+      reference: ref,
+      textSnippet: snippet.slice(0, 120),
+    };
+
+    const quoteBlock = `\n\n> "${snippet}"\n> — **${ref} (RVR 1960)**\n\n`;
+
+    const active = (userData.notes || []).find((n) => n.id === activeNoteId);
+    if (active) {
+      const alreadyLinked = active.linkedVerses?.some(
+        (lv) => lv.bookId === currentBookId && lv.chapter === currentChapter && lv.verseStart === vStart
+      );
+      const updatedLinked = alreadyLinked ? active.linkedVerses : [...(active.linkedVerses || []), newLink];
+
+      handleUpdateNote({
+        ...active,
+        content: (active.content || '') + quoteBlock,
+        linkedVerses: updatedLinked,
+        updatedAt: new Date().toISOString(),
+      });
+      setIsNotebookOpen(true);
+    } else {
+      handleCreateNote(`Estudio: ${ref}`, [newLink]);
+    }
+
+    setSelectedVerses([]);
+  }, [selectedVerses, currentBookId, currentChapter, currentVerses, userData.notes, activeNoteId, handleUpdateNote, handleCreateNote]);
+
   // Atajos de teclado globales
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -425,6 +542,9 @@ export const App: React.FC = () => {
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         setIsSearchOpen(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        setIsNotebookOpen((prev) => !prev);
       } else if (e.key === 'Escape') {
         setSelectedVerses([]);
       }
@@ -463,27 +583,52 @@ export const App: React.FC = () => {
         favoritesCount={Object.keys(userData.favorites).length}
         bookmarksCount={userData.bookmarks.length}
         collectionsCount={userData.collections.length}
+        isNotebookOpen={isNotebookOpen}
+        onToggleNotebook={handleToggleNotebook}
+        notesCount={(userData.notes || []).length}
       />
 
-      {/* Reader Area */}
-      <Reader
-        currentBook={currentBook}
-        currentChapter={currentChapter}
-        verses={currentVerses}
-        settings={userData.settings}
-        highlights={userData.highlights}
-        favorites={userData.favorites}
-        bookmarks={userData.bookmarks}
-        collections={userData.collections}
-        selectedVerses={selectedVerses}
-        onToggleVerseSelection={handleToggleVerseSelection}
-        targetVerseToScroll={targetVerseToScroll}
-        onClearTargetVerse={() => setTargetVerseToScroll(null)}
-        onPrevChapter={handlePrevChapter}
-        onNextChapter={handleNextChapter}
-        canPrev={canPrev}
-        canNext={canNext}
-      />
+      {/* Main Workspace: Split-View Bible Reader + Study Notebook */}
+      <div className="flex-1 flex overflow-hidden relative">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Reader
+            currentBook={currentBook}
+            currentChapter={currentChapter}
+            verses={currentVerses}
+            settings={userData.settings}
+            highlights={userData.highlights}
+            favorites={userData.favorites}
+            bookmarks={userData.bookmarks}
+            collections={userData.collections}
+            selectedVerses={selectedVerses}
+            onToggleVerseSelection={handleToggleVerseSelection}
+            targetVerseToScroll={targetVerseToScroll}
+            onClearTargetVerse={() => setTargetVerseToScroll(null)}
+            onPrevChapter={handlePrevChapter}
+            onNextChapter={handleNextChapter}
+            canPrev={canPrev}
+            canNext={canNext}
+          />
+        </div>
+
+        {/* Cuaderno de Estudio y Bosquejos (Pantalla Dividida) */}
+        <StudyNotebook
+          isOpen={isNotebookOpen}
+          onClose={() => setIsNotebookOpen(false)}
+          notes={userData.notes || []}
+          activeNoteId={activeNoteId}
+          onSelectNote={handleSelectNote}
+          onCreateNote={handleCreateNote}
+          onUpdateNote={handleUpdateNote}
+          onDeleteNote={handleDeleteNote}
+          onJumpToReference={handleJumpToReference}
+          currentBookName={currentBook.name}
+          currentBookId={currentBookId}
+          currentChapter={currentChapter}
+          selectedVerses={selectedVerses}
+          currentChapterVerses={currentVerses.map((text, idx) => ({ verse: idx + 1, text }))}
+        />
+      </div>
 
       {/* Floating Action Bar */}
       <VerseActionBar
@@ -496,6 +641,7 @@ export const App: React.FC = () => {
         onHighlight={handleHighlight}
         onAddToCollection={handleOpenAddToCollection}
         onOpenCardStudio={() => setIsCardModalOpen(true)}
+        onSendToNotebook={handleSendSelectionToNotebook}
         onBookmark={() => {
           if (selectedVerses.length > 0) {
             handleAddBookmark(
