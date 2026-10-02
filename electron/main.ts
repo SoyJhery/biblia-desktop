@@ -40,6 +40,18 @@ function createWindow() {
     mainWindow?.show();
   });
 
+  mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    console.log(`[Renderer]: ${message} (${sourceId}:${line})`);
+  });
+
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    console.error('Render process gone:', details);
+  });
+
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
+
   const distHtmlPath = path.join(__dirname, '../dist/index.html');
 
   if (isDev) {

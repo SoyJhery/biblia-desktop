@@ -211,15 +211,15 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   const [isAddingTag, setIsAddingTag] = useState(false);
   const [localTitle, setLocalTitle] = useState('');
 
-  const editorRef = useRef<HTMLDivElement>(null);
-  const saveTimeoutRef = useRef<any>(null);
-  const currentNoteIdRef = useRef<string | null>(null);
-  const lastContentRef = useRef<string>(activeNote?.content || '');
-
   // Active Note
   const activeNote = useMemo(() => {
     return notes.find((n) => n.id === activeNoteId) || null;
   }, [notes, activeNoteId]);
+
+  const editorRef = useRef<HTMLDivElement>(null);
+  const saveTimeoutRef = useRef<any>(null);
+  const currentNoteIdRef = useRef<string | null>(null);
+  const lastContentRef = useRef<string>('');
 
   // Sincronizar título local y HTML cuando cambia la nota seleccionada
   useEffect(() => {
