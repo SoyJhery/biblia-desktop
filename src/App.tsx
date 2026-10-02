@@ -428,11 +428,22 @@ export const App: React.FC = () => {
     setActiveNoteId(id);
   }, []);
 
-  const handleCreateNote = useCallback((title?: string, initialVerses?: LinkedVerse[]) => {
+  const handleCreateNote = useCallback((title?: string, initialVerses?: LinkedVerse[], initialSnippet?: string, initialRef?: string) => {
+    let initialHtml = `<h1>${title || 'Nuevo Bosquejo de Estudio'}</h1><p><br></p>`;
+    if (initialSnippet && initialRef) {
+      initialHtml += `
+        <div class="verse-box" contenteditable="false">
+          <div class="verse-text">“${initialSnippet}”</div>
+          <div class="verse-ref">📖 ${initialRef} — Reina-Valera 1960</div>
+        </div>
+        <p><br></p>
+      `;
+    }
+
     const newNote: StudyNote = {
       id: `note-${Date.now()}`,
       title: title || 'Nuevo Bosquejo de Estudio',
-      content: `# ${title || 'Nuevo Bosquejo de Estudio'}\n\n`,
+      content: initialHtml,
       tags: ['Estudio'],
       linkedVerses: initialVerses || [],
       createdAt: new Date().toISOString(),
@@ -510,7 +521,13 @@ export const App: React.FC = () => {
       textSnippet: snippet.slice(0, 120),
     };
 
-    const quoteBlock = `\n\n> "${snippet}"\n> — **${ref} (RVR 1960)**\n\n`;
+    const visualCardHtml = `
+      <div class="verse-box" contenteditable="false">
+        <div class="verse-text">“${snippet}”</div>
+        <div class="verse-ref">📖 ${ref} — Reina-Valera 1960</div>
+      </div>
+      <p><br></p>
+    `;
 
     const active = (userData.notes || []).find((n) => n.id === activeNoteId);
     if (active) {
@@ -521,13 +538,13 @@ export const App: React.FC = () => {
 
       handleUpdateNote({
         ...active,
-        content: (active.content || '') + quoteBlock,
+        content: (active.content || '') + visualCardHtml,
         linkedVerses: updatedLinked,
         updatedAt: new Date().toISOString(),
       });
       setIsNotebookOpen(true);
     } else {
-      handleCreateNote(`Estudio: ${ref}`, [newLink]);
+      handleCreateNote(`Estudio: ${ref}`, [newLink], snippet, ref);
     }
 
     setSelectedVerses([]);

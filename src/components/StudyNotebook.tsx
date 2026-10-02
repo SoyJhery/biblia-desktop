@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   FileText,
   Plus,
@@ -14,6 +14,7 @@ import {
   Minimize2,
   Bold,
   Italic,
+  Underline,
   Heading1,
   Heading2,
   Heading3,
@@ -27,6 +28,8 @@ import {
   BookOpen,
   Calendar,
   Sparkles,
+  Type,
+  Minus,
 } from 'lucide-react';
 import { StudyNote, LinkedVerse } from '../types';
 
@@ -45,6 +48,132 @@ interface StudyNotebookProps {
   currentChapter: number;
   selectedVerses: number[];
   currentChapterVerses: { verse: number; text: string }[];
+}
+
+/**
+ * Convierte notas antiguas en formato markdown a HTML enriquecido visual
+ * para que los usuarios vean tipografía hermosa sin símbolos como # o **.
+ */
+function markdownToHtml(md: string): string {
+  if (!md) return '<p><br></p>';
+  if (/<(p|h1|h2|h3|blockquote|ul|ol|li|div|strong|em|u|br)/i.test(md)) {
+    return md;
+  }
+
+  const lines = md.split('\n');
+  const result: string[] = [];
+  let inUl = false;
+  let inOl = false;
+
+  for (let line of lines) {
+    const trimmed = line.trimEnd();
+
+    if (trimmed.startsWith('# ')) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push(`<h1>${trimmed.slice(2)}</h1>`);
+      continue;
+    }
+    if (trimmed.startsWith('## ')) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push(`<h2>${trimmed.slice(3)}</h2>`);
+      continue;
+    }
+    if (trimmed.startsWith('### ')) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push(`<h3>${trimmed.slice(4)}</h3>`);
+      continue;
+    }
+    if (trimmed.startsWith('> ')) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push(`<blockquote>${trimmed.slice(2)}</blockquote>`);
+      continue;
+    }
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      if (!inUl) {
+        result.push('<ul>');
+        inUl = true;
+      }
+      result.push(`<li>${trimmed.slice(2)}</li>`);
+      continue;
+    } else if (inUl) {
+      result.push('</ul>');
+      inUl = false;
+    }
+
+    if (/^\d+\.\s/.test(trimmed)) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (!inOl) {
+        result.push('<ol>');
+        inOl = true;
+      }
+      result.push(`<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`);
+      continue;
+    } else if (inOl) {
+      result.push('</ol>');
+      inOl = false;
+    }
+
+    if (trimmed.trim() === '---') {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push('<hr>');
+      continue;
+    }
+
+    if (!trimmed.trim()) {
+      if (inUl) { result.push('</ul>'); inUl = false; }
+      if (inOl) { result.push('</ol>'); inOl = false; }
+      result.push('<p><br></p>');
+      continue;
+    }
+
+    let processed = trimmed
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>');
+    result.push(`<p>${processed}</p>`);
+  }
+
+  if (inUl) result.push('</ul>');
+  if (inOl) result.push('</ol>');
+
+  return result.join('');
+}
+
+/**
+ * Convierte el HTML visual a Markdown limpio para exportar archivos .md compatibles
+ */
+function htmlToMarkdown(html: string): string {
+  if (!html) return '';
+  let md = html
+    .replace(/<h1>(.*?)<\/h1>/gi, '# $1\n\n')
+    .replace(/<h2>(.*?)<\/h2>/gi, '## $1\n\n')
+    .replace(/<h3>(.*?)<\/h3>/gi, '### $1\n\n')
+    .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
+    .replace(/<b>(.*?)<\/b>/gi, '**$1**')
+    .replace(/<em>(.*?)<\/em>/gi, '*$1*')
+    .replace(/<i>(.*?)<\/i>/gi, '*$1*')
+    .replace(/<u>(.*?)<\/u>/gi, '$1')
+    .replace(/<div class="verse-box">[\s\S]*?<div class="verse-text">(.*?)<\/div>[\s\S]*?<div class="verse-ref">(.*?)<\/div>[\s\S]*?<\/div>/gi, '> "$1"\n> — **$2**\n\n')
+    .replace(/<blockquote>(.*?)<\/blockquote>/gi, '> $1\n\n')
+    .replace(/<li>(.*?)<\/li>/gi, '- $1\n')
+    .replace(/<ul.*?>/gi, '\n')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<ol.*?>/gi, '\n')
+    .replace(/<\/ol>/gi, '\n')
+    .replace(/<hr.*?>/gi, '\n---\n\n')
+    .replace(/<p><br\/?><\/p>/gi, '\n')
+    .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return md;
 }
 
 export const StudyNotebook: React.FC<StudyNotebookProps> = ({
@@ -66,11 +195,13 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  const [viewMode, setViewMode] = useState<'edit' | 'pulpit'>('edit');
   const [copied, setCopied] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
   const [isAddingTag, setIsAddingTag] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const editorRef = useRef<HTMLDivElement>(null);
+  const isUpdatingFromSelf = useRef(false);
 
   // Active Note
   const activeNote = useMemo(() => {
@@ -106,41 +237,80 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     }
   }, [isOpen, activeNoteId, notes, onSelectNote]);
 
+  // Sincronizar el contenido del editor visual cuando cambia la nota activa
+  useEffect(() => {
+    if (editorRef.current && activeNote) {
+      if (!isUpdatingFromSelf.current) {
+        const richHtml = markdownToHtml(activeNote.content || '');
+        editorRef.current.innerHTML = richHtml;
+      }
+      isUpdatingFromSelf.current = false;
+    }
+  }, [activeNote?.id]);
+
   if (!isOpen) return null;
 
-  // Insert markdown syntax helper
-  const insertMarkdown = (prefix: string, suffix: string = '', defaultText: string = '') => {
-    const textarea = textareaRef.current;
-    if (!textarea || !activeNote) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const currentText = activeNote.content;
-    const selected = currentText.substring(start, end) || defaultText;
-
-    const newContent =
-      currentText.substring(0, start) +
-      prefix +
-      selected +
-      suffix +
-      currentText.substring(end);
-
+  // Manejador de entrada de texto directo en el editor visual
+  const handleEditorInput = () => {
+    if (!editorRef.current || !activeNote) return;
+    isUpdatingFromSelf.current = true;
+    const html = editorRef.current.innerHTML;
     onUpdateNote({
       ...activeNote,
-      content: newContent,
+      content: html,
       updatedAt: new Date().toISOString(),
     });
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(
-        start + prefix.length,
-        start + prefix.length + selected.length
-      );
-    }, 10);
   };
 
-  // Helper to insert current bible passage into the active note
+  // Comandos de formateo visual nativo
+  const executeCommand = (command: string, value: string | undefined = undefined) => {
+    editorRef.current?.focus();
+    document.execCommand(command, false, value);
+    handleEditorInput();
+  };
+
+  // Formato de bloques: Título 1, Título 2, Subtítulo 3, Cita, Párrafo Normal
+  const applyBlockFormat = (tag: string) => {
+    editorRef.current?.focus();
+    document.execCommand('formatBlock', false, tag);
+    handleEditorInput();
+  };
+
+  // Insertar HTML en la posición del cursor de manera limpia
+  const insertHtmlAtCursor = (htmlToInsert: string) => {
+    editorRef.current?.focus();
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) {
+      if (editorRef.current) {
+        editorRef.current.innerHTML += htmlToInsert;
+        handleEditorInput();
+      }
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlToInsert;
+    const frag = document.createDocumentFragment();
+    let node;
+    let lastNode;
+    while ((node = tempDiv.firstChild)) {
+      lastNode = frag.appendChild(node);
+    }
+    range.insertNode(frag);
+
+    if (lastNode) {
+      const newRange = range.cloneRange();
+      newRange.setStartAfter(lastNode);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
+    handleEditorInput();
+  };
+
+  // Inserción de pasaje bíblico visual estilizado
   const handleInsertCurrentPassage = () => {
     if (!activeNote) return;
 
@@ -163,9 +333,18 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       snippet = currentChapterVerses.slice(0, 3).map((v) => `${v.verse}. ${v.text}`).join(' ') + '...';
     }
 
-    const passageBlock = `\n\n> "${snippet}"\n> — **${refText} (RVR 1960)**\n\n`;
+    // Tarjeta visual editorial del pasaje (sin símbolos de código ni markdown)
+    const visualScriptureHtml = `
+      <div class="verse-box" contenteditable="false">
+        <div class="verse-text">“${snippet}”</div>
+        <div class="verse-ref">📖 ${refText} — Reina-Valera 1960</div>
+      </div>
+      <p><br></p>
+    `;
 
-    // Also link the verse if not already linked
+    insertHtmlAtCursor(visualScriptureHtml);
+
+    // También registrar en pasajes vinculados si no existe
     const sorted = selectedVerses.length > 0 ? [...selectedVerses].sort((a, b) => a - b) : [1];
     const vStart = sorted[0];
     const vEnd = sorted[sorted.length - 1];
@@ -173,7 +352,6 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
       (lv) => lv.bookId === currentBookId && lv.chapter === currentChapter && lv.verseStart === vStart
     );
 
-    let updatedLinked = activeNote.linkedVerses;
     if (!alreadyLinked) {
       const newLink: LinkedVerse = {
         id: `link-${Date.now()}`,
@@ -184,18 +362,16 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
         reference: refText,
         textSnippet: snippet.slice(0, 120),
       };
-      updatedLinked = [...activeNote.linkedVerses, newLink];
+      onUpdateNote({
+        ...activeNote,
+        content: editorRef.current ? editorRef.current.innerHTML : activeNote.content,
+        linkedVerses: [...activeNote.linkedVerses, newLink],
+        updatedAt: new Date().toISOString(),
+      });
     }
-
-    onUpdateNote({
-      ...activeNote,
-      content: (activeNote.content || '') + passageBlock,
-      linkedVerses: updatedLinked,
-      updatedAt: new Date().toISOString(),
-    });
   };
 
-  // Add current reference as linked verse only
+  // Vincular referencia bíblica sin alterar el texto
   const handleLinkCurrentVerse = () => {
     if (!activeNote) return;
     const sorted = selectedVerses.length > 0 ? [...selectedVerses].sort((a, b) => a - b) : [1];
@@ -206,7 +382,6 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     const alreadyLinked = activeNote.linkedVerses.some(
       (lv) => lv.bookId === currentBookId && lv.chapter === currentChapter && lv.verseStart === vStart
     );
-
     if (alreadyLinked) return;
 
     const matchedText = currentChapterVerses
@@ -231,7 +406,6 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     });
   };
 
-  // Remove linked verse
   const handleRemoveLink = (linkId: string) => {
     if (!activeNote) return;
     onUpdateNote({
@@ -241,7 +415,6 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     });
   };
 
-  // Add tag
   const handleAddTag = () => {
     if (!newTagInput.trim() || !activeNote) return;
     const clean = newTagInput.trim();
@@ -256,7 +429,6 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     setIsAddingTag(false);
   };
 
-  // Remove tag
   const handleRemoveTag = (tagToRemove: string) => {
     if (!activeNote) return;
     onUpdateNote({
@@ -266,29 +438,29 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     });
   };
 
-  // Copy note to clipboard with copyright
+  // Copiar nota limpia al portapapeles
   const handleCopyNote = () => {
     if (!activeNote) return;
-    const fullText = `${activeNote.title}\n\n${activeNote.content}\n\n---\nPasajes vinculados: ${
+    const plainText = htmlToMarkdown(activeNote.content);
+    const fullText = `${activeNote.title}\n\n${plainText}\n\n---\nPasajes vinculados: ${
       activeNote.linkedVerses.map((l) => l.reference).join(', ') || 'Ninguno'
-    }\nEstudio creado en Biblia RVR 1960 - SoyJhery (soyjhery@gmail.com)\nCopyright © 2026 SoyJhery. Todos los derechos reservados.`;
+    }\nEstudio creado en Biblia RVR 1960 • SoyJhery (soyjhery@gmail.com)\nCopyright © 2026 SoyJhery. Todos los derechos reservados.`;
 
     navigator.clipboard.writeText(fullText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Export as .md file
+  // Exportar como Markdown estándar para quien lo desee
   const handleExportMarkdown = () => {
     if (!activeNote) return;
     const sanitizedTitle = (activeNote.title || 'Bosquejo')
       .replace(/[^a-z0-9áéíóúñ_-]/gi, '_')
       .toLowerCase();
+    const mdBody = htmlToMarkdown(activeNote.content);
     const content = `# ${activeNote.title}\n\n*Fecha: ${new Date(
       activeNote.updatedAt
-    ).toLocaleDateString()}*\n*Etiquetas: ${activeNote.tags.join(', ')}*\n\n${
-      activeNote.content
-    }\n\n---\n### Pasajes Bíblicos Vinculados\n${activeNote.linkedVerses
+    ).toLocaleDateString()}*\n*Etiquetas: ${activeNote.tags.join(', ')}*\n\n${mdBody}\n\n---\n### Pasajes Bíblicos Vinculados\n${activeNote.linkedVerses
       .map((l) => `- **${l.reference}**: ${l.textSnippet}`)
       .join('\n')}\n\n---\n*Compilado con Biblia RVR 1960 Desktop por SoyJhery*\n*Contacto: soyjhery@gmail.com*\n*Copyright © 2026 SoyJhery. Todos los derechos reservados.*`;
 
@@ -301,21 +473,16 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  // Print sermon note
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <aside
       className={`border-l border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex flex-col z-20 transition-all duration-300 shadow-xl select-none ${
         isMaximized
           ? 'fixed inset-0 z-50 w-full h-full'
-          : 'w-full lg:w-[480px] xl:w-[540px] h-[calc(100vh-3.5rem)] flex-shrink-0'
+          : 'w-full lg:w-[500px] xl:w-[580px] h-[calc(100vh-3.5rem)] flex-shrink-0'
       }`}
     >
-      {/* Top Header */}
-      <div className="h-14 px-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between bg-white dark:bg-stone-900/90 backdrop-blur-sm">
+      {/* Barra superior */}
+      <div className="h-14 px-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between bg-white dark:bg-stone-900/95 backdrop-blur-sm">
         <div className="flex items-center gap-2 text-stone-800 dark:text-stone-100 font-semibold text-sm">
           <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <FileText className="w-4 h-4" />
@@ -332,7 +499,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
           <button
             onClick={() => setIsMaximized(!isMaximized)}
             className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
-            title={isMaximized ? 'Restaurar panel dividido' : 'Maximizar cuaderno'}
+            title={isMaximized ? 'Restaurar panel lateral' : 'Maximizar a pantalla completa'}
           >
             {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -346,22 +513,22 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
         </div>
       </div>
 
-      {/* Main Split Body: Sidebar list (on large / maximized) + Active Editor */}
+      {/* Cuerpo principal divido: Lista de Notas a la izquierda y Editor Visual a la derecha */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Note List / Selector (Left Column if maximized or collapsible) */}
+        {/* Columna Izquierda: Selector de notas */}
         <div
           className={`flex flex-col border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/60 ${
             isMaximized ? 'w-72 sm:w-80' : 'w-48 sm:w-56'
           }`}
         >
-          {/* Quick Actions & Search */}
+          {/* Botón Nueva Nota y Búsqueda */}
           <div className="p-3 border-b border-stone-200 dark:border-stone-800 space-y-2">
             <button
               onClick={() => onCreateNote()}
               className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-sm transition-all active:scale-98"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Nueva Nota / Bosquejo</span>
+              <span>Nuevo Bosquejo</span>
             </button>
 
             <div className="relative">
@@ -375,7 +542,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
               />
             </div>
 
-            {/* Tag Pills Filter */}
+            {/* Filtro por etiquetas */}
             {allTags.length > 0 && (
               <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-[10px]">
                 <button
@@ -405,7 +572,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
             )}
           </div>
 
-          {/* Notes List Scrollable */}
+          {/* Lista de notas */}
           <div className="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800/60 p-1.5 space-y-1">
             {filteredNotes.length === 0 ? (
               <div className="p-6 text-center text-xs text-stone-400">
@@ -415,6 +582,12 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
             ) : (
               filteredNotes.map((note) => {
                 const isSelected = note.id === activeNoteId;
+                // Preview limpio sin etiquetas HTML
+                const previewClean = note.content
+                  .replace(/<[^>]+>/g, ' ')
+                  .replace(/[#*>`]/g, '')
+                  .trim();
+
                 return (
                   <button
                     key={note.id}
@@ -430,7 +603,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                     </div>
 
                     <div className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed">
-                      {note.content.replace(/[#*>`]/g, '').trim() || 'Nota vacía...'}
+                      {previewClean || 'Nota vacía...'}
                     </div>
 
                     <div className="flex items-center justify-between text-[10px] text-stone-400 pt-1">
@@ -449,12 +622,11 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
           </div>
         </div>
 
-        {/* Note Editor / Preview (Right Column) */}
+        {/* Columna Derecha: Editor Visual Estilizado (WYSIWYG) */}
         {activeNote ? (
           <div className="flex-1 flex flex-col bg-white dark:bg-stone-900 overflow-hidden select-text">
-            {/* Note Toolbar: Title, Tags, Mode Toggle, Export */}
-            <div className="p-3 border-b border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 bg-stone-50/50 dark:bg-stone-850/50">
-              {/* Title & View Switcher */}
+            {/* Cabecera del Documento: Título y Modos de Vista */}
+            <div className="p-3 border-b border-stone-200 dark:border-stone-800 flex flex-col gap-2.5 bg-stone-50/60 dark:bg-stone-850/60">
               <div className="flex items-center justify-between gap-3">
                 <input
                   type="text"
@@ -466,71 +638,67 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                       updatedAt: new Date().toISOString(),
                     })
                   }
-                  placeholder="Título del bosquejo o estudio..."
-                  className="flex-1 bg-transparent font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-b border-transparent focus:border-emerald-500 pb-0.5"
+                  placeholder="Título del sermón o estudio..."
+                  className="flex-1 bg-transparent font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none border-b border-transparent focus:border-amber-500 pb-0.5 transition-colors"
                 />
 
-                {/* View Mode (Edit / Preview) */}
+                {/* Alternador de Modo de Trabajo */}
                 <div className="flex items-center bg-stone-200 dark:bg-stone-800 rounded-lg p-0.5 text-xs font-medium">
                   <button
                     onClick={() => setViewMode('edit')}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors ${
                       viewMode === 'edit'
-                        ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs'
+                        ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs font-semibold'
                         : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
-                    title="Modo Edición"
+                    title="Modo Edición Visual con Herramientas de Estilo"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Editor</span>
+                    <span>Editor</span>
                   </button>
                   <button
-                    onClick={() => setViewMode('preview')}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${
-                      viewMode === 'preview'
-                        ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs'
+                    onClick={() => setViewMode('pulpit')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors ${
+                      viewMode === 'pulpit'
+                        ? 'bg-white dark:bg-stone-700 text-stone-900 dark:text-white shadow-xs font-semibold'
                         : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
                     }`}
-                    title="Modo Púlpito / Vista Previa Limpia"
+                    title="Modo Púlpito: Lectura limpia y tipografía amplia para predicar sin distracciones"
                   >
                     <Eye className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Púlpito</span>
+                    <span>Púlpito</span>
                   </button>
                 </div>
 
-                {/* Quick Action Menu */}
+                {/* Acciones Rápidas */}
                 <div className="flex items-center gap-1">
                   <button
                     onClick={handleCopyNote}
                     className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 transition-colors"
-                    title="Copiar texto completo del bosquejo"
+                    title="Copiar texto del sermón al portapapeles"
                   >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-emerald-500" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
+                    {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                   </button>
 
                   <button
                     onClick={handleExportMarkdown}
                     className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 transition-colors"
-                    title="Descargar archivo Markdown (.md)"
+                    title="Exportar archivo Markdown (.md)"
                   >
                     <Download className="w-4 h-4" />
                   </button>
 
                   <button
-                    onClick={handlePrint}
+                    onClick={() => window.print()}
                     className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 transition-colors"
-                    title="Imprimir / Exportar a PDF"
+                    title="Imprimir o Guardar en PDF"
                   >
                     <Printer className="w-4 h-4" />
                   </button>
 
                   <button
                     onClick={() => {
-                      if (confirm(`¿Estás seguro de eliminar el bosquejo "${activeNote.title}"?`)) {
+                      if (confirm(`¿Deseas eliminar el bosquejo "${activeNote.title}"?`)) {
                         onDeleteNote(activeNote.id);
                       }
                     }}
@@ -542,9 +710,8 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                 </div>
               </div>
 
-              {/* Tags & Linked Scriptures Bar */}
+              {/* Etiquetas y Pasajes */}
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                {/* Tags */}
                 {activeNote.tags.map((t) => (
                   <span
                     key={t}
@@ -595,14 +762,14 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
 
                 <div className="h-3 w-[1px] bg-stone-300 dark:bg-stone-700 mx-1" />
 
-                {/* Quick Link/Insert Passage Trigger */}
+                {/* Botón para insertar la tarjeta bíblica visual */}
                 <button
                   onClick={handleInsertCurrentPassage}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 text-[11px] font-semibold transition-colors"
-                  title="Inserta la cita bíblica seleccionada en el texto y la vincula"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-400 text-xs font-semibold transition-all border border-amber-500/30 shadow-xs"
+                  title="Inserta una tarjeta visual estilizada con el pasaje bíblico seleccionado en la posición del cursor"
                 >
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>+ Citar pasaje actual</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>+ Insertar Versículo</span>
                 </button>
 
                 <button
@@ -615,7 +782,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                 </button>
               </div>
 
-              {/* Linked Verses Pills */}
+              {/* Badges de Versículos Vinculados */}
               {activeNote.linkedVerses.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200/60 dark:border-stone-800/60">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
@@ -624,12 +791,12 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                   {activeNote.linkedVerses.map((lv) => (
                     <div
                       key={lv.id}
-                      className="group inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-medium border border-amber-300/40 dark:border-amber-700/40"
+                      className="group inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px] font-medium border border-amber-300/40 dark:border-amber-700/40 shadow-2xs"
                     >
                       <button
                         onClick={() => onJumpToReference(lv.bookId, lv.chapter, lv.verseStart)}
                         className="hover:underline flex items-center gap-1"
-                        title={`Ir a ${lv.reference} en la Biblia`}
+                        title={`Navegar a ${lv.reference} en la Biblia`}
                       >
                         <BookOpen className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                         <span>{lv.reference}</span>
@@ -647,97 +814,118 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
               )}
             </div>
 
-            {/* Markdown Quick Helpers Toolbar (Only in Edit mode) */}
+            {/* Barra de Herramientas de Estilo Visual (WYSIWYG) */}
             {viewMode === 'edit' && (
-              <div className="px-3 py-1.5 border-b border-stone-200 dark:border-stone-800 bg-stone-100/70 dark:bg-stone-800/40 flex items-center gap-1 overflow-x-auto no-scrollbar">
-                <button
-                  onClick={() => insertMarkdown('**', '**', 'texto en negrita')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Negrita (**)"
-                >
-                  <Bold className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('*', '*', 'texto en cursiva')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Cursiva (*)"
-                >
-                  <Italic className="w-3.5 h-3.5" />
-                </button>
-                <div className="h-3 w-[1px] bg-stone-300 dark:bg-stone-700 mx-0.5" />
-                <button
-                  onClick={() => insertMarkdown('# ', '', 'Encabezado Principal')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Título H1"
-                >
-                  <Heading1 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('## ', '', 'Punto Principal')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Subtítulo H2"
-                >
-                  <Heading2 className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('### ', '', 'Sub-punto')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Sub-sección H3"
-                >
-                  <Heading3 className="w-3.5 h-3.5" />
-                </button>
-                <div className="h-3 w-[1px] bg-stone-300 dark:bg-stone-700 mx-0.5" />
-                <button
-                  onClick={() => insertMarkdown('> ', '', 'Cita bíblica o reflexión')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Cita / Bloque (>)"
-                >
-                  <Quote className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('- ', '', 'Punto de lista')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Lista con viñetas"
-                >
-                  <List className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('1. ', '', 'Punto numerado')}
-                  className="p-1 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
-                  title="Lista numerada"
-                >
-                  <ListOrdered className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => insertMarkdown('\n---\n')}
-                  className="px-1.5 py-0.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 text-[11px] font-mono transition-colors"
-                  title="Separador horizontal"
-                >
-                  ---
-                </button>
+              <div className="px-3 py-1.5 border-b border-stone-200 dark:border-stone-800 bg-stone-100/80 dark:bg-stone-850/80 flex items-center gap-1 overflow-x-auto no-scrollbar select-none">
+                {/* Selector visual de Título / Estilo */}
+                <div className="flex items-center gap-1 pr-1 border-r border-stone-300 dark:border-stone-700">
+                  <button
+                    onClick={() => applyBlockFormat('<p>')}
+                    className="px-2 py-1 text-xs rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors font-medium"
+                    title="Texto normal"
+                  >
+                    Normal
+                  </button>
+                  <button
+                    onClick={() => applyBlockFormat('<h1>')}
+                    className="flex items-center gap-0.5 px-2 py-1 text-xs rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-amber-700 dark:text-amber-400 transition-colors font-bold"
+                    title="Título Principal Grande"
+                  >
+                    <Heading1 className="w-3.5 h-3.5" />
+                    <span>Título 1</span>
+                  </button>
+                  <button
+                    onClick={() => applyBlockFormat('<h2>')}
+                    className="flex items-center gap-0.5 px-2 py-1 text-xs rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors font-semibold"
+                    title="Subtítulo / Punto del Sermón"
+                  >
+                    <Heading2 className="w-3.5 h-3.5" />
+                    <span>Subtítulo 2</span>
+                  </button>
+                  <button
+                    onClick={() => applyBlockFormat('<h3>')}
+                    className="flex items-center gap-0.5 px-2 py-1 text-xs rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-400 transition-colors font-medium"
+                    title="Sección Menor"
+                  >
+                    <Heading3 className="w-3.5 h-3.5" />
+                    <span>Punto 3</span>
+                  </button>
+                </div>
+
+                {/* Formato de Caracteres */}
+                <div className="flex items-center gap-0.5 px-1 border-r border-stone-300 dark:border-stone-700">
+                  <button
+                    onClick={() => executeCommand('bold')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors font-bold"
+                    title="Negrita (Ctrl+B)"
+                  >
+                    <Bold className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => executeCommand('italic')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors italic"
+                    title="Cursiva (Ctrl+I)"
+                  >
+                    <Italic className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => executeCommand('underline')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors underline"
+                    title="Subrayado (Ctrl+U)"
+                  >
+                    <Underline className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Estructura: Listas, Citas y Separador */}
+                <div className="flex items-center gap-0.5 px-1">
+                  <button
+                    onClick={() => executeCommand('insertUnorderedList')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+                    title="Lista con viñetas"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => executeCommand('insertOrderedList')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+                    title="Lista numerada"
+                  >
+                    <ListOrdered className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => applyBlockFormat('<blockquote>')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+                    title="Cita o reflexión en bloque"
+                  >
+                    <Quote className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => executeCommand('insertHorizontalRule')}
+                    className="p-1.5 rounded hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+                    title="Línea divisoria"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* Editor Canvas or Pulpit Preview */}
+            {/* Lienzo del Editor Visual (WYSIWYG) */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 print:p-0">
               {viewMode === 'edit' ? (
-                <textarea
-                  ref={textareaRef}
-                  value={activeNote.content}
-                  onChange={(e) =>
-                    onUpdateNote({
-                      ...activeNote,
-                      content: e.target.value,
-                      updatedAt: new Date().toISOString(),
-                    })
-                  }
-                  placeholder="Escribe tu sermón, puntos de estudio, referencias cruzadas o aplicaciones prácticas aquí en formato Markdown..."
-                  className="w-full h-full bg-transparent resize-none focus:outline-none font-sans text-sm sm:text-base leading-relaxed text-stone-800 dark:text-stone-100 placeholder-stone-400 select-text"
+                <div
+                  ref={editorRef}
+                  contentEditable
+                  onInput={handleEditorInput}
+                  data-placeholder="Comienza a escribir tu sermón, puntos de estudio o reflexiones aquí. Usa las herramientas superiores para títulos y versículos sin preocuparte por códigos..."
+                  className="study-editor w-full h-full text-stone-900 dark:text-stone-100 select-text"
+                  spellCheck="true"
                 />
               ) : (
-                /* Formatted Pulpit / Reader Mode */
-                <div className="max-w-3xl mx-auto space-y-4 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-base sm:text-lg">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-sans border-b border-stone-200 dark:border-stone-800 pb-3">
+                /* Modo Púlpito: Lectura limpia, tipografía editorial grande sin barras de herramientas */
+                <div className="max-w-3xl mx-auto space-y-4 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-lg sm:text-xl">
+                  <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-amber-700 dark:text-amber-400 font-sans border-b border-stone-200 dark:border-stone-800 pb-3">
                     {activeNote.title || 'Bosquejo sin título'}
                   </h1>
 
@@ -751,89 +939,19 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
                     )}
                   </div>
 
-                  <div className="prose dark:prose-invert max-w-none space-y-3 font-serif">
-                    {activeNote.content.split('\n').map((line, idx) => {
-                      if (line.startsWith('# ')) {
-                        return (
-                          <h2
-                            key={idx}
-                            className="text-xl sm:text-2xl font-bold font-sans text-stone-900 dark:text-stone-100 pt-3"
-                          >
-                            {line.replace('# ', '')}
-                          </h2>
-                        );
-                      }
-                      if (line.startsWith('## ')) {
-                        return (
-                          <h3
-                            key={idx}
-                            className="text-lg sm:text-xl font-bold font-sans text-amber-600 dark:text-amber-400 pt-2"
-                          >
-                            {line.replace('## ', '')}
-                          </h3>
-                        );
-                      }
-                      if (line.startsWith('### ')) {
-                        return (
-                          <h4
-                            key={idx}
-                            className="text-base sm:text-lg font-semibold font-sans text-stone-800 dark:text-stone-200 pt-1"
-                          >
-                            {line.replace('### ', '')}
-                          </h4>
-                        );
-                      }
-                      if (line.startsWith('> ')) {
-                        return (
-                          <blockquote
-                            key={idx}
-                            className="pl-4 py-1 border-l-4 border-amber-500 bg-amber-500/5 dark:bg-amber-500/10 italic rounded-r text-stone-800 dark:text-stone-200 my-2"
-                          >
-                            {line.replace('> ', '')}
-                          </blockquote>
-                        );
-                      }
-                      if (line.startsWith('- ') || line.startsWith('* ')) {
-                        return (
-                          <li key={idx} className="ml-5 list-disc text-stone-800 dark:text-stone-200">
-                            {line.substring(2)}
-                          </li>
-                        );
-                      }
-                      if (/^\d+\.\s/.test(line)) {
-                        return (
-                          <li
-                            key={idx}
-                            className="ml-5 list-decimal text-stone-800 dark:text-stone-200 font-medium"
-                          >
-                            {line.replace(/^\d+\.\s/, '')}
-                          </li>
-                        );
-                      }
-                      if (line.trim() === '---') {
-                        return (
-                          <hr key={idx} className="border-stone-200 dark:border-stone-800 my-4" />
-                        );
-                      }
-                      if (!line.trim()) {
-                        return <div key={idx} className="h-2" />;
-                      }
-                      return (
-                        <p key={idx} className="text-stone-800 dark:text-stone-200 leading-relaxed">
-                          {line}
-                        </p>
-                      );
-                    })}
-                  </div>
+                  <div
+                    className="study-editor prose dark:prose-invert max-w-none font-serif select-text"
+                    dangerouslySetInnerHTML={{ __html: markdownToHtml(activeNote.content) }}
+                  />
                 </div>
               )}
             </div>
 
-            {/* Footer with Copyright and Auto-save indicator */}
+            {/* Pie de página con estado de guardado y firma oficial */}
             <div className="h-8 px-4 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex items-center justify-between text-[11px] text-stone-400">
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Guardado automático en disco
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Guardado automático visual</span>
               </span>
               <span>Biblia RVR 1960 • SoyJhery</span>
             </div>
@@ -842,7 +960,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-stone-400">
             <FileText className="w-12 h-12 mb-3 opacity-30 text-stone-400" />
             <h3 className="font-semibold text-stone-700 dark:text-stone-300 text-sm">
-              Ninguna nota seleccionada
+              Ningún bosquejo seleccionado
             </h3>
             <p className="text-xs text-stone-400 mt-1 max-w-xs">
               Selecciona una nota de la izquierda o crea un nuevo bosquejo para tus sermones y estudios.
@@ -852,7 +970,7 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
               className="mt-4 flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs transition-all shadow-sm"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Crear Nueva Nota</span>
+              <span>Crear Nuevo Bosquejo</span>
             </button>
           </div>
         )}
