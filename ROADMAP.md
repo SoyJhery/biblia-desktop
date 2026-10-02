@@ -15,10 +15,9 @@ Este documento describe la visión de producto, los hitos alcanzados y las etapa
 flowchart LR
     A["v0.1.0 Núcleo Bíblico ✅"] --> B["v0.2.0 Verse Card Studio ✅"]
     B --> C["v0.3.0 Cuaderno & Púlpito ✅"]
-    C --> D["v0.4.0 Modo Proyector 🚀"]
-    D --> E["v0.5.0 Concordancia Strong 📋"]
-    E --> F["v0.6.0 Mapas & Cronología 📋"]
-    F --> G["v0.7.0 Sync Cifrada P2P 📋"]
+    C --> D["v0.4.0 Concordancia Strong 🚀"]
+    D --> E["v0.5.0 Mapas & Cronología 📋"]
+    E --> F["v0.6.0 Sync Cifrada P2P 📋"]
 ```
 
 ---
@@ -58,30 +57,17 @@ flowchart LR
 
 ---
 
-## 🚀 Fase 4 — Modo Proyector / Segunda Pantalla (`v0.4.0`)
-*Estado: Próximo desarrollo.*
+## 🚀 Fase 4 — Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas (`v0.4.0`)
+*Estado: En Desarrollo.*
 
-- [ ] **Detección multimonitor:** Reconocimiento automático de pantallas secundarias conectadas por HDMI, DisplayPort, VGA o proyectores inalámbricos.
-- [ ] **Ventana independiente de proyección:** Ventana dedicada sin bordes (*borderless fullscreen*) que se proyecta en la segunda pantalla.
-- [ ] **Consola de operador:** Panel de control en la pantalla principal para que el operador bíblico envíe versículos a la pantalla con un clic, mantenga una pantalla en negro (*blackout*) o con el logotipo de la iglesia.
-- [ ] **Modos de visualización:**
-  - Modo Versículo Completo (fondo oscuro de alto contraste y tipografía dorada/blanca ultra legible).
-  - Modo Puntos del Sermón (proyección sincronizada desde el Cuaderno de Bosquejos).
-  - Modo Tercio Inferior (*Lower Thirds*) para integración con transmisiones en vivo (OBS Studio / vMix).
-- [ ] **Fondos dinámicos litúrgicos:** Selección de fondos sutiles y gradientes solemnes para la proyección.
+- [ ] **Diccionario y números Strong integrados:** Base de datos léxica completa offline para el Antiguo Testamento (hebreo y arameo H1-H8674) y Nuevo Testamento (griego koine G1-G5624).
+- [ ] **Panel de Estudio Léxico Interactivo:** Al hacer clic o posar el cursor sobre palabras y términos clave, desplegar el vocablo original, transliteración fonética, significado raíz, etimología y concordancia de ocurrencias en la Biblia.
+- [ ] **Referencias Cruzadas Temáticas (Treasury of Scripture Knowledge):** Más de 500,000 conexiones bíblicas entre profecías, cumplimiento, ecos del Antiguo Testamento en las Epístolas y pasajes paralelos accesibles desde el lector.
+- [ ] **Buscador de Raíces y Concordancia Exhaustiva:** Buscar rápidamente todos los versículos donde se utiliza una raíz hebrea o griega específica.
 
 ---
 
-## 📋 Fase 5 — Concordancia Strong & Referencias Cruzadas (`v0.5.0`)
-*Estado: Planificado.*
-
-- [ ] **Diccionario y números Strong:** Integración de la numeración Strong para el Antiguo Testamento (hebreo/arameo) y Nuevo Testamento (griego koine).
-- [ ] **Explorador morfológico interactivo:** Al posar el cursor sobre una palabra en pasajes clave, desplegar el término original, transliteración, significado y número de apariciones.
-- [ ] **Tesoro de la Escritura (Referencias Cruzadas):** Panel lateral con más de 500,000 referencias cruzadas que conectan profecías con su cumplimiento y pasajes paralelos.
-
----
-
-## 📋 Fase 6 — Mapas Cartográficos & Cronología Bíblica (`v0.6.0`)
+## 📋 Fase 5 — Mapas Cartográficos & Cronología Bíblica (`v0.5.0`)
 *Estado: Planificado.*
 
 - [ ] **Atlas Bíblico Interactivo:** Mapas vectoriales de alta definición de la Geografía Bíblica:
@@ -93,7 +79,7 @@ flowchart LR
 
 ---
 
-## 📋 Fase 7 — Sincronización Cifrada Local-First & Nube P2P (`v0.7.0`)
+## 📋 Fase 6 — Sincronización Cifrada Local-First & Nube P2P (`v0.6.0`)
 *Estado: Planificado.*
 
 - [ ] **Cifrado de extremo a extremo:** Protección criptográfica (AES-256) de notas personales, bosquejos homiléticos y marcadores.
@@ -104,4 +90,5 @@ flowchart LR
 
 > ### 🛑 Restricciones de Diseño y Alcance
 > - **Sin audio ni síntesis de voz (TTS):** Queda permanentemente descartada la inclusión de sintetizadores de voz artificial o reproductores de audio, manteniendo la aplicación 100% enfocada en la lectura reflexiva, la preparación rigurosa y la predicación personal.
+> - **Sin modo proyector:** Eliminado para priorizar las herramientas de exégesis, traducción, léxico y estudio bíblico profundo.
 > - **Privacidad Absoluta:** 0 telemetría, 0 analíticas, 0 publicidad. La Palabra de Dios y los apuntes del usuario permanecen exclusivamente en sus propios dispositivos.

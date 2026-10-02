@@ -48,10 +48,9 @@ Este proyecto sigue una visión escalonada de desarrollo continuo, priorizando l
 | **Fase 1** | `v0.1.0` | ✅ **Completado** | **Núcleo Canónico & Motor de Lectura:** 66 libros offline, SQLite/JSON, temas claro/sepia/oscuro, favoritos, marcadores, colecciones temáticas, soporte Windows (`.exe`) y Linux. |
 | **Fase 2** | `v0.2.0` | ✅ **Completado** | **Verse Card Studio HD:** Creador de postales en 1:1 y 9:16 con paletas prémium, descarga PNG y portapapeles. |
 | **Fase 3** | `v0.3.0` | ✅ **Completado** | **Cuaderno Homilético & Modo Púlpito:** Pantalla dividida, editor visual WYSIWYG, inserción de tarjetas bíblicas en bloque, tags y vista de atril. |
-| **Fase 4** | `v0.4.0` | 🚀 **Próximo** | **Modo Proyector / Segunda Pantalla (HDMI / TV):** Transmisión de versículos y puntos del sermón a pantallas externas o proyectores del templo, con control de operador independiente, fondos dinámicos y visor de versículo actual. |
-| **Fase 5** | `v0.5.0` | 📋 **Planificado** | **Concordancia Strong & Referencias Cruzadas:** Enlaces de números Strong a léxicos hebreo/griego palabra por palabra y panel de pasajes paralelos interconectados. |
-| **Fase 6** | `v0.6.0` | 📋 **Planificado** | **Mapas Cartográficos & Cronología Interactiva:** Mapas históricos interactivos de las tierras bíblicas (rutas del Éxodo, viajes de Pablo) y línea de tiempo bíblica desde la Creación hasta el Apocalipsis. |
-| **Fase 7** | `v0.7.0` | 📋 **Planificado** | **Sincronización Segura Local-First / P2P:** Respaldos automáticos cifrados de usuario a usuario o nube privada sin intermediarios para mantener sermones y notas a salvo entre equipos. |
+| **Fase 4** | `v0.4.0` | 🚀 **En Desarrollo** | **Concordancia Strong, Léxico Hebreo/Griego & Referencias Cruzadas:** Enlaces de números Strong a léxicos hebreo/griego palabra por palabra, explorador etimológico y panel de pasajes paralelos interconectados. |
+| **Fase 5** | `v0.5.0` | 📋 **Planificado** | **Mapas Cartográficos & Cronología Interactiva:** Mapas históricos interactivos de las tierras bíblicas (rutas del Éxodo, viajes de Pablo) y línea de tiempo bíblica desde la Creación hasta el Apocalipsis. |
+| **Fase 6** | `v0.6.0` | 📋 **Planificado** | **Sincronización Segura Local-First / P2P:** Respaldos automáticos cifrados de usuario a usuario o nube privada sin intermediarios para mantener sermones y notas a salvo entre equipos. |
 
 > *Nota: Por solicitud del autor, las funcionalidades de audio y sintetizador de voz (TTS) quedan explícitamente excluidas del alcance del proyecto, enfocándose en la excelencia visual, tipográfica y de estudio profundo.*
 
