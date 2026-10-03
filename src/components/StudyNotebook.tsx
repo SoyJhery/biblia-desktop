@@ -665,6 +665,8 @@ export const StudyNotebook: React.FC<StudyNotebookProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  if (!isOpen) return null;
+
   return (
     <aside
       className={`border-l border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 flex flex-col z-20 transition-all duration-300 shadow-xl ${

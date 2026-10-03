@@ -23,12 +23,26 @@ function getUserDataFilePath(): string {
   return path.join(userDir, 'biblia_userdata.json');
 }
 
+function getAppIconPath(): string | undefined {
+  const icoPath = path.join(__dirname, '../build/icon.ico');
+  const pngPath = path.join(__dirname, '../build/icon.png');
+  if (process.platform === 'win32' && fs.existsSync(icoPath)) {
+    return icoPath;
+  }
+  if (fs.existsSync(pngPath)) {
+    return pngPath;
+  }
+  return undefined;
+}
+
 function createWindow() {
+  const icon = getAppIconPath();
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 900,
     minHeight: 600,
+    icon,
     backgroundColor: '#0c0a09', // stone-950 dark background for seamless launch
     title: 'Biblia RVR 1960 — Una app de SoyJhery',
     webPreferences: {

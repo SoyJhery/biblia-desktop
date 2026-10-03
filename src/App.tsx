@@ -696,22 +696,24 @@ export const App: React.FC = () => {
         </div>
 
         {/* Cuaderno de Estudio y Bosquejos (Pantalla Dividida) */}
-        <StudyNotebook
-          isOpen={isNotebookOpen}
-          onClose={() => setIsNotebookOpen(false)}
-          notes={userData.notes || []}
-          activeNoteId={activeNoteId}
-          onSelectNote={handleSelectNote}
-          onCreateNote={handleCreateNote}
-          onUpdateNote={handleUpdateNote}
-          onDeleteNote={handleDeleteNote}
-          onJumpToReference={handleJumpToReference}
-          currentBookName={currentBook.name}
-          currentBookId={currentBookId}
-          currentChapter={currentChapter}
-          selectedVerses={selectedVerses}
-          currentChapterVerses={currentVerses.map((text, idx) => ({ verse: idx + 1, text }))}
-        />
+        {isNotebookOpen && (
+          <StudyNotebook
+            isOpen={isNotebookOpen}
+            onClose={() => setIsNotebookOpen(false)}
+            notes={userData.notes || []}
+            activeNoteId={activeNoteId}
+            onSelectNote={handleSelectNote}
+            onCreateNote={handleCreateNote}
+            onUpdateNote={handleUpdateNote}
+            onDeleteNote={handleDeleteNote}
+            onJumpToReference={handleJumpToReference}
+            currentBookName={currentBook.name}
+            currentBookId={currentBookId}
+            currentChapter={currentChapter}
+            selectedVerses={selectedVerses}
+            currentChapterVerses={currentVerses.map((text, idx) => ({ verse: idx + 1, text }))}
+          />
+        )}
       </div>
 
       {/* Floating Action Bar */}
